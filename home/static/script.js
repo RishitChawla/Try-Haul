@@ -20,22 +20,22 @@ document.addEventListener("DOMContentLoaded", () => {
       }
     })
   
-    // Hide secondary navbar on scroll
+    // Hide secondary navbar on scroll    
     const secondaryNavbar = document.getElementById("secondaryNavbar")
     let lastScrollTop = 0
-  
+
     window.addEventListener("scroll", () => {
-      const scrollTop = window.pageYOffset || document.documentElement.scrollTop
-  
-      if (scrollTop > 50) {
+        const scrollTop = window.pageYOffset || document.documentElement.scrollTop
+
+        if (scrollTop > 50) {
         secondaryNavbar.classList.add("hidden")
-      } else {
+        } else {
         secondaryNavbar.classList.remove("hidden")
-      }
-  
-      lastScrollTop = scrollTop
+        }
+
+        lastScrollTop = scrollTop
     })
-  
+    
     // Close mobile menu when clicking outside
     document.addEventListener("click", (event) => {
       if (
