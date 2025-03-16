@@ -1,0 +1,180 @@
+{% extends "layout.html" %}
+{% load static %}
+
+{% block body %}
+
+
+  <main>
+    <div class="container orders-container">
+      <h1 class="section-title">My Orders</h1>
+      
+      <!-- Toggle between these two sections based on whether there are orders -->
+      
+      <!-- When there are orders -->
+      <div class="orders-list">
+        <!-- Order 1 -->
+        <div class="order-card">
+          <div class="order-header">
+            <span class="order-id">Order #12345</span>
+            <span class="order-date">Placed on: June 15, 2023</span>
+            <span class="order-status status-delivered">Delivered</span>
+          </div>
+          <div class="order-items">
+            <div class="order-item">
+              <img src="https://via.placeholder.com/80x100?text=Product" alt="Product" class="order-item-image">
+              <div class="order-item-details">
+                <div class="order-item-name">Premium Cotton T-Shirt</div>
+                <div class="order-item-size">Size: M | Qty: 1</div>
+                <div class="order-item-price">$29.99</div>
+              </div>
+            </div>
+            <div class="order-item">
+              <img src="https://via.placeholder.com/80x100?text=Product" alt="Product" class="order-item-image">
+              <div class="order-item-details">
+                <div class="order-item-name">Slim Fit Jeans</div>
+                <div class="order-item-size">Size: 32 | Qty: 1</div>
+                <div class="order-item-price">$49.99</div>
+              </div>
+            </div>
+          </div>
+          <div class="order-footer">
+            <div class="order-total">Total: $79.98</div>
+            <div class="order-actions">
+              <a href="#" class="btn secondary-btn">Track Order</a>
+              <a href="#" class="btn primary-btn">Buy Again</a>
+            </div>
+          </div>
+        </div>
+        
+        <!-- Order 2 -->
+        <div class="order-card">
+          <div class="order-header">
+            <span class="order-id">Order #12346</span>
+            <span class="order-date">Placed on: June 20, 2023</span>
+            <span class="order-status status-processing">Processing</span>
+          </div>
+          <div class="order-items">
+            <div class="order-item">
+              <img src="https://via.placeholder.com/80x100?text=Product" alt="Product" class="order-item-image">
+              <div class="order-item-details">
+                <div class="order-item-name">Leather Wallet</div>
+                <div class="order-item-size">Qty: 1</div>
+                <div class="order-item-price">$39.99</div>
+              </div>
+            </div>
+          </div>
+          <div class="order-footer">
+            <div class="order-total">Total: $39.99</div>
+            <div class="order-actions">
+              <a href="#" class="btn secondary-btn">Track Order</a>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <!-- When there are no orders -->
+      <div class="empty-orders" style="display: none;">
+        <i class="fas fa-shopping-bag"></i>
+        <h2>No Orders Placed Yet</h2>
+        <p>Looks like you haven't placed any orders yet. Browse our collections and find something you love!</p>
+        <a href="index.html" class="btn primary-btn">Start Shopping</a>
+      </div>
+    </div>
+  </main>
+
+  <footer class="footer">
+    <div class="container">
+      <div class="footer-grid">
+        <!-- About Us -->
+        <div class="footer-column">
+          <h3 class="footer-title">About Us</h3>
+          <p class="footer-text">
+            We are a premium fashion retailer dedicated to providing high-quality clothing and accessories for men and women.
+          </p>
+          <div class="social-links">
+            <a href="#" class="social-link"><i class="fab fa-facebook-f"></i></a>
+            <a href="#" class="social-link"><i class="fab fa-instagram"></i></a>
+            <a href="#" class="social-link"><i class="fab fa-twitter"></i></a>
+          </div>
+        </div>
+
+        <!-- Quick Links -->
+        <div class="footer-column">
+          <h3 class="footer-title">Quick Links</h3>
+          <ul class="footer-links">
+            <li><a href="#">About Us</a></li>
+            <li><a href="#">Collections</a></li>
+            <li><a href="#">Blog</a></li>
+            <li><a href="faq.html">FAQ</a></li>
+          </ul>
+        </div>
+
+        <!-- Contact Us -->
+        <div class="footer-column">
+          <h3 class="footer-title">Contact Us</h3>
+          <ul class="contact-info">
+            <li>
+              <i class="fas fa-map-marker-alt"></i>
+              <span>123 Fashion Street, New York, NY 10001</span>
+            </li>
+            <li>
+              <i class="fas fa-phone"></i>
+              <span>+1 (555) 123-4567</span>
+            </li>
+            <li>
+              <i class="fas fa-envelope"></i>
+              <span>info@fashionstore.com</span>
+            </li>
+          </ul>
+        </div>
+
+        <!-- Newsletter -->
+        <div class="footer-column">
+          <h3 class="footer-title">Newsletter</h3>
+          <p class="footer-text">
+            Subscribe to our newsletter to receive updates on new arrivals and special offers.
+          </p>
+          <form class="newsletter-form">
+            <input type="email" placeholder="Your email address" required>
+            <button type="submit" class="btn primary-btn">Subscribe</button>
+          </form>
+        </div>
+      </div>
+
+      <div class="footer-bottom">
+        <p>&copy; <span id="currentYear"></span> Fashion Store. All rights reserved.</p>
+      </div>
+    </div>
+  </footer>
+  
+{% endblock %}
+
+
+{% block script %}
+  <script src="{% static 'static/script.js' %}"></script>
+  <script>
+    // Toggle between orders and empty state for demo purposes
+    // In a real application, this would be determined by backend data
+    const toggleOrdersBtn = document.createElement('button');
+    toggleOrdersBtn.textContent = 'Toggle Orders View';
+    toggleOrdersBtn.classList.add('btn', 'secondary-btn');
+    toggleOrdersBtn.style.marginBottom = '20px';
+    
+    const ordersContainer = document.querySelector('.orders-container');
+    ordersContainer.insertBefore(toggleOrdersBtn, ordersContainer.firstChild.nextSibling);
+    
+    const ordersList = document.querySelector('.orders-list');
+    const emptyOrders = document.querySelector('.empty-orders');
+    
+    toggleOrdersBtn.addEventListener('click', function() {
+      if (ordersList.style.display === 'none') {
+        ordersList.style.display = 'block';
+        emptyOrders.style.display = 'none';
+      } else {
+        ordersList.style.display = 'none';
+        emptyOrders.style.display = 'block';
+      }
+    });
+  </script>
+{% endblock %}
+

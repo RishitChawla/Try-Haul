@@ -1,0 +1,128 @@
+{% extends "layout.html" %}
+{% load static %}
+
+{% block body %}
+
+  <main>
+    <!-- Hero Section -->
+    <section class="hero-section">
+      <div class="hero-image">
+        <div class="hero-overlay"></div>
+        <div class="hero-content">
+          <h1>Elegant Collections</h1>
+          <p>Discover our new arrivals and exclusive offers</p>
+          <a href="#" class="btn primary-btn">Shop Now</a>
+        </div>
+      </div>
+    </section>
+
+    <!-- Spotlight Sections -->
+    <section class="spotlight-section">
+      <div class="container">
+        <h2 class="section-title">Our Collections</h2>
+        <div class="spotlight-grid">
+          <a href="#" class="spotlight-item">
+            <div class="spotlight-image-container">
+              <img src="https://via.placeholder.com/800x600" alt="Best Sellers">
+              <div class="spotlight-overlay"></div>
+              <h3 class="spotlight-title">Best Sellers</h3>
+            </div>
+          </a>
+          <a href="#" class="spotlight-item">
+            <div class="spotlight-image-container">
+              <img src="https://via.placeholder.com/800x600" alt="New Arrivals">
+              <div class="spotlight-overlay"></div>
+              <h3 class="spotlight-title">New Arrivals</h3>
+            </div>
+          </a>
+          <a href="#" class="spotlight-item">
+            <div class="spotlight-image-container">
+              <img src="https://via.placeholder.com/800x600" alt="Special Offers">
+              <div class="spotlight-overlay"></div>
+              <h3 class="spotlight-title">Special Offers</h3>
+            </div>
+          </a>
+        </div>
+      </div>
+    </section>
+
+    <!-- Featured Products Section -->
+    <section class="featured-products-section">
+      <div class="container">
+        <h2 class="section-title">Featured Products</h2>
+        <div class="products-grid">
+          <div class="product-card">
+            <div class="product-image">
+              <img src="https://via.placeholder.com/300x400?text=Product+1" alt="Product 1">
+            </div>
+            <div class="product-info">
+              <h3 class="product-name">Product Name</h3>
+              <p class="product-category">Category</p>
+              <div class="product-footer">
+                <span class="product-price">$99.99</span>
+                <button class="cart-add-btn">
+                  <i class="fas fa-shopping-bag"></i>
+                </button>
+              </div>
+            </div>
+          </div>
+          <div class="product-card">
+            <div class="product-image">
+              <img src="https://via.placeholder.com/300x400?text=Product+2" alt="Product 2">
+            </div>
+            <div class="product-info">
+              <h3 class="product-name">Product Name</h3>
+              <p class="product-category">Category</p>
+              <div class="product-footer">
+                <span class="product-price">$99.99</span>
+                <button class="cart-add-btn">
+                  <i class="fas fa-shopping-bag"></i>
+                </button>
+              </div>
+            </div>
+          </div>
+          <div class="product-card">
+            <div class="product-image">
+              <img src="https://via.placeholder.com/300x400?text=Product+3" alt="Product 3">
+            </div>
+            <div class="product-info">
+              <h3 class="product-name">Product Name</h3>
+              <p class="product-category">Category</p>
+              <div class="product-footer">
+                <span class="product-price">$99.99</span>
+                <button class="cart-add-btn">
+                  <i class="fas fa-shopping-bag"></i>
+                </button>
+              </div>
+            </div>
+          </div>
+          <div class="product-card">
+            <div class="product-image">
+              <img src="https://via.placeholder.com/300x400?text=Product+4" alt="Product 4">
+            </div>
+            <div class="product-info">
+              <h3 class="product-name">Product Name</h3>
+              <p class="product-category">Category</p>
+              <div class="product-footer">
+                <span class="product-price">$99.99</span>
+                <button class="cart-add-btn">
+                  <i class="fas fa-shopping-bag"></i>
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="view-all-container">
+          <a href="#" class="btn secondary-btn">View All Products</a>
+        </div>
+      </div>
+    </section>
+  </main>
+
+
+{% endblock %}
+
+
+{% block script %}
+  <script src="{% static 'static/script.js' %}"></script>
+{% endblock %}
