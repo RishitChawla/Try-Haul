@@ -6,5 +6,6 @@ urlpatterns = [
     path("orders", views.orders, name="orders"),
     path("edit", views.editProfile, name="editProfile"),
     path('wishlist', views.wishlist, name="wishlist"),
-    path('cart', views.cart, name="cart")
+    path('cart', views.cart, name="cart"),
+    path('<str:category>/<str:productType>/<int:uniqueLabel>/', views.listing, name='listing'),
 ]
