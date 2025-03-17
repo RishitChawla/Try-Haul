@@ -1,9 +1,9 @@
 from django.contrib import admin
-from .models import Brand, Category, Color, Size, SizeGuide, Listing, Image
+from .models import Brand, Category, Color, Size, SizeGuide, Listing, Image, ProductType
 
 @admin.register(Listing)
 class ListingAdmin(admin.ModelAdmin):
-    list_display = ('name', 'brand', 'category', 'price', 'discounted_price')
+    list_display = ('name', 'brand', 'category', 'price', 'discountedPrice')
     list_filter = ('brand', 'category')
     search_fields = ('name', 'brand__name')
 
@@ -18,3 +18,4 @@ admin.site.register(Category)
 admin.site.register(Color)
 admin.site.register(Size)
 admin.site.register(SizeGuide)
+admin.site.register(ProductType)
