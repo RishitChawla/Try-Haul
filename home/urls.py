@@ -9,7 +9,10 @@ urlpatterns = [
     path('cart', views.cart, name="cart"),
     path('allproducts', views.allProducts, name="allProducts"),
     path('<str:category>/', views.category, name="category"),
-    # path('<str:category>/<str:productType>/<int:uniqueLabel>/', views.listing, name='listing'), # Item display
     path('<str:category>/<str:productType>', views.productType, name="productType"),
+    path('<str:category>/<str:productType>/<int:uniqueLabel>/', views.item, name='item'), 
+    path('bestsellers', views.bestSellers, name="bestSellers"),
+    path('newarrivals', views.newArrivals, name="newArrivals"),
+    path('specialoffers', views.specialOffers, name="specialOffers"),
 
 ]

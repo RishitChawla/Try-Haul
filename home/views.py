@@ -26,6 +26,15 @@ def allProducts(request):
         "category": "All Products"
     })
 
+def bestSellers(request):
+    return render(request, "listing.html")
+
+def newArrivals(request):
+    return render(request, "listing.html")
+
+def specialOffers(request):
+    return render(request, "listing.html")
+
 
 def category(request, category):
     # Fetch listings that match the category name
@@ -46,4 +55,9 @@ def productType(request, category, productType):
     })
 
 def item(request, category, productType, uniqueLabel):
-    return render(request, "item.html")
+    listing = get_object_or_404(Listing, category__name=category, productType__name=productType, uniqueLabel=uniqueLabel)
+
+
+    return render(request, "item.html", {
+        "listing": listing
+    })
