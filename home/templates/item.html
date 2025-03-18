@@ -4,8 +4,172 @@
 {% block body %}
 
 
+<main>
+    <section class="product-detail">
+    <div class="container">
+        <div class="product-container">
+        <!-- Product Images Column -->
+        <div class="product-images">    
+            <div class="product-thumbnails">
+                {% for image in listing.images.all %}
+                    <div class="thumbnail" data-image="{{ image.image.url }}">
+                        <img src="{{ image.image.url }}" alt="Product Thumbnail {{ image.id }}">
+                    </div>      
+                {% endfor %}    
+            </div>
+            <div class="product-main-image">
+                <img src="{{ listing.images.first.image.url }}" alt="Product Main Image" id="mainImage">
+            </div>
+        </div>
 
-    item
+
+        <!-- Product Info Column -->
+        <div class="product-info">
+            <div class="product-brand">{{ listing.brand }}</div>
+            <h1 class="product-name">{{ listing.name }}</h1>
+            <div class="product-price">₹{{ listing.price }}</div>
+            <p class="product-description">
+            {{ listing.description }}
+            </p>
+
+            
+            <!-- Color Options -->
+            <div class="color-options">
+                <h3>Color:</h3>
+                <div class="color-list">
+                    {% for colors in listing.colors.all %}
+                        <div class="color-option active" style="background-color: #{{ colors.hexCode }};" data-color="{{ colors.name }}"></div>
+                    {% endfor %}
+                </div>
+            </div>
+            
+            <!-- Size Options -->
+            <div class="size-options">
+                <div class="size-header">
+                    <h3>Size</h3>
+                    <span class="size-guide-link" id="sizeGuideLink">Size Guide</span>
+                </div>
+
+                <div class="size-list">
+                    {% for size in listing.sizes.all %}
+                        <div class="size-option" data-size="{{ size }}">{{ size }}</div>
+                    {% endfor %}                
+                </div>
+            </div>
+            
+            <!-- Action Buttons -->
+            <div class="product-actions">
+            <button class="btn primary-btn add-to-cart-btn">Add to Bag</button>
+            <button class="wishlist-action-btn" aria-label="Add to Wishlist">
+                <i class="fas fa-heart"></i>
+            </button>
+            </div>
+            
+            {% if listing.productDetails %}
+            <!-- Accordion Sections -->
+            <div class="product-accordion">
+            <!-- Product Details -->
+            <div class="accordion-item">
+                <div class="accordion-header">
+                <span class="accordion-title">Product Details</span>
+                <i class="fas fa-chevron-down accordion-icon"></i>
+                </div>
+                <div class="accordion-content">
+                <div class="accordion-content-inner">
+                    {{ listing.productDetails|linebreaksbr }}
+                </div>
+                </div>
+            </div>
+            {% endif %}
+            
+            {% if listing.brand.aboutbrand.desc %}
+            <!-- About the Brand -->
+            <div class="accordion-item">
+                <div class="accordion-header">
+                <span class="accordion-title">About the Brand</span>
+                <i class="fas fa-chevron-down accordion-icon"></i>
+                </div>
+                <div class="accordion-content">
+                <div class="accordion-content-inner">
+                    {{ listing.brand.aboutbrand.desc|linebreaksbr  }}
+                </div>
+                </div>
+            </div>
+            {% endif %}
+            
+            <!-- Delivery and Returns -->
+            <!-- <div class="accordion-item">
+                <div class="accordion-header">
+                <span class="accordion-title">Delivery and Returns</span>
+                <i class="fas fa-chevron-down accordion-icon"></i>
+                </div>
+                <div class="accordion-content">
+                <div class="accordion-content-inner">
+                    <h4>Delivery</h4>
+                    <p>Standard delivery: 3-5 working days (Free on orders over $50)</p>
+                    <p>Express delivery: 1-2 working days ($9.99)</p>
+                    
+                    <h4>Returns</h4>
+                    <p>We offer a 30-day return policy. Items must be unworn and in original packaging with tags attached.</p>
+                    <p>For hygiene reasons, underwear and swimwear cannot be returned.</p>
+                </div>
+                </div>
+            </div> -->
+            </div>
+        </div>
+        </div>
+    </div>
+    </section>
+</main>
+
+<!-- Size Guide Modal -->
+<div class="modal-overlay" id="sizeGuideModal">
+    <div class="modal">
+    <button class="modal-close" id="modalClose">
+        <i class="fas fa-times"></i>
+    </button>
+    <h2 class="modal-title">Size Guide</h2>
+    <table class="size-table">
+        <thead>
+        <tr>
+            <th>Size</th>
+            <th>Chest (inches)</th>
+            <th>Waist (inches)</th>
+            <th>Hips (inches)</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr>
+            <td>S</td>
+            <td>36-38</td>
+            <td>28-30</td>
+            <td>35-37</td>
+        </tr>
+        <tr>
+            <td>M</td>
+            <td>39-41</td>
+            <td>31-33</td>
+            <td>38-40</td>
+        </tr>
+        <tr>
+            <td>L</td>
+            <td>42-44</td>
+            <td>34-36</td>
+            <td>41-43</td>
+        </tr>
+        <tr>
+            <td>XL</td>
+            <td>45-47</td>
+            <td>37-39</td>
+            <td>44-46</td>
+        </tr>
+        </tbody>
+    </table>
+    <p>Measurements are body measurements, not garment measurements. If you're between sizes, we recommend sizing up for a more comfortable fit.</p>
+    </div>
+</div>
+
+
 
 
 
@@ -16,6 +180,5 @@
 {% block script %}
     {% load static %}
     <script src="{% static 'script.js' %}"></script>
-    <!-- <script src="{% static 'listing.js' %}"></script>
-    <script src="{% static 'sort.js' %}"></script> -->
+    <script src="{% static 'item.js' %}"></script>
 {% endblock %}

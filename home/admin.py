@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import Brand, Category, Color, Size, SizeGuide, Listing, Image, ProductType
+from .models import Brand, Category, Color, Size, SizeGuide, Listing, Image, ProductType, AboutBrand
 
 @admin.register(Listing)
 class ListingAdmin(admin.ModelAdmin):
@@ -19,3 +19,4 @@ admin.site.register(Color)
 admin.site.register(Size)
 admin.site.register(SizeGuide)
 admin.site.register(ProductType)
+admin.site.register(AboutBrand)

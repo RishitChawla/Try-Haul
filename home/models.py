@@ -47,6 +47,13 @@ class SizeGuide(models.Model):
 
     def __str__(self):
         return f"{self.brand.name} - {self.size.size_label}"
+    
+class AboutBrand(models.Model):
+    brand = models.OneToOneField(Brand, on_delete=models.CASCADE)
+    desc = models.TextField(blank=True, null=True)
+
+    def __str__(self):
+        return f"{self.brand.name}"
 
 # Listing Model (Main Product Listing)
 class Listing(models.Model):
@@ -59,7 +66,8 @@ class Listing(models.Model):
     sizes = models.ManyToManyField(Size)
     price = models.DecimalField(max_digits=10, decimal_places=2)
     discountedPrice = models.DecimalField(max_digits=10, decimal_places=2, blank=True, null=True)
-    description = models.TextField()
+    description = models.TextField(blank=True, null=True)
+    productDetails = models.TextField(blank=True, null=True)
     deliveryTime = models.CharField(max_length=255, default="5-7 days")
     stockQuantity = models.PositiveIntegerField(default=0)
     createdAt = models.DateTimeField(auto_now_add=True)
@@ -77,9 +85,11 @@ class Listing(models.Model):
         ]
 
     def save(self, *args, **kwargs):
+        # Assign uniqueLabel if not already set
         if not self.uniqueLabel and self.productType:
             last_label = Listing.objects.filter(productType=self.productType).aggregate(Max('uniqueLabel'))['uniqueLabel__max']
             self.uniqueLabel = 1 if last_label is None else last_label + 1
+
         super().save(*args, **kwargs)
 
 
@@ -87,7 +97,7 @@ class Listing(models.Model):
         return self.discountedPrice if self.discountedPrice else self.price
 
     def __str__(self):
-        return self.name
+        return f"{self.brand} - {self.name}"
 
 # Image Model (To Store Multiple Images)
 class Image(models.Model):
