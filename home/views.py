@@ -27,36 +27,47 @@ def allProducts(request):
     })
 
 def bestSellers(request):
-    return render(request, "listing.html")
+    listings = Listing.objects.filter(bestSelling=True)
+    return render(request, "listing.html", {
+        "listings": listings
+    })
 
 def newArrivals(request):
-    return render(request, "listing.html")
+    listings = Listing.objects.filter(newArrival=True)
+    return render(request, "listing.html", {
+        "listings": listings
+    })
 
 def specialOffers(request):
-    return render(request, "listing.html")
+    listings = Listing.objects.filter(specialOffer=True)
+    return render(request, "listing.html", {
+        "listings": listings
+    })
 
-
-def category(request, category):
-    # Fetch listings that match the category name
-    listings = Listing.objects.filter(category__name=category)
+def category(request, category_slug):
+    category = get_object_or_404(Category, slug=category_slug)
+    listings = Listing.objects.filter(category=category)
 
     return render(request, "listing.html", {
         "listings": listings,
-        "category": category,
+        "category": category.name,
     })
 
-def productType(request, category, productType):
-    listings = Listing.objects.filter(category__name=category, productType__name=productType)
+def productType(request, category_slug, productType_slug):
+    category = get_object_or_404(Category, slug=category_slug)
+    productType = get_object_or_404(ProductType, slug=productType_slug)
+    listings = Listing.objects.filter(category=category, productType=productType)
 
     return render(request, "listing.html", {
         "listings": listings,
-        "category": category,
-        "productType": productType
+        "category": category.name,
+        "productType": productType.name
     })
 
-def item(request, category, productType, uniqueLabel):
-    listing = get_object_or_404(Listing, category__name=category, productType__name=productType, uniqueLabel=uniqueLabel)
-
+def item(request, category_slug, productType_slug, listing_slug):
+    category = get_object_or_404(Category, slug=category_slug)
+    productType = get_object_or_404(ProductType, slug=productType_slug)
+    listing = get_object_or_404(Listing, category=category, productType=productType, slug=listing_slug)
 
     return render(request, "item.html", {
         "listing": listing

@@ -34,7 +34,7 @@
         <!-- Listings -->
         <div class="product-grid">
             {% for list in listings %}
-              <a href="{% url 'item' category=list.category.name productType=list.productType.name uniqueLabel=list.uniqueLabel %}" class="product-card"  data-created-at="{{ list.createdAt|date:'Y-m-d H:i:s' }}">
+              <a href="{% url 'item' list.category.slug list.productType.slug list.slug %}" class="product-card"  data-created-at="{{ list.createdAt|date:'Y-m-d H:i:s' }}">
                 <div class="product-image-container">
                   <img src="{{ list.images.first.image.url }}" alt="Product 1" class="product-image primary">
                   {% for image in list.images.all %}
@@ -48,7 +48,15 @@
                 <div class="product-info">
                   <div class="product-brand">{{ list.brand }}</div>
                   <h3 class="product-name">{{ list.name }}</h3>
-                  <div class="product-price">₹ {{ list.price }}</div>
+                  {% if list.discountedPrice %}
+                    <div class="price-container">
+                        <div class="product-price">₹ {{ list.discountedPrice }}</div> 
+                        <div class="product-discounted-price"><s>₹ {{ list.price }}</s></div>
+                    </div>
+                  {% else %}
+                    <div class="product-price">₹ {{ list.price }}</div>
+                  {% endif %}
+                  
                 </div>
               </a>
             {% endfor %}

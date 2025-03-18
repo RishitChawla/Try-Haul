@@ -1,5 +1,6 @@
 from django.db import models
 from django.db.models import Max, UniqueConstraint
+from django.utils.text import slugify
 
 # Brand Model
 class Brand(models.Model):
@@ -11,13 +12,25 @@ class Brand(models.Model):
 # Category Model (Men, Women, Unisex)
 class Category(models.Model):
     name = models.CharField(max_length=50, unique=True)
+    slug = models.SlugField(unique=True, blank=True, null=True)
+
+    def save(self, *args, **kwargs):
+        if not self.slug:
+            self.slug = slugify(self.name)
+        super().save(*args, **kwargs)
 
     def __str__(self):
         return self.name
 
 # Product Model (Tshirt, Shirt, Trouser)
 class ProductType(models.Model):
-    name = models.CharField(max_length=100, unique=True)  
+    name = models.CharField(max_length=100, unique=True)
+    slug = models.SlugField(unique=True, blank=True, null=True)
+
+    def save(self, *args, **kwargs):
+        if not self.slug:
+            self.slug = slugify(self.name)
+        super().save(*args, **kwargs)
 
     def __str__(self):
         return self.name
@@ -71,6 +84,7 @@ class Listing(models.Model):
     deliveryTime = models.CharField(max_length=255, default="5-7 days")
     stockQuantity = models.PositiveIntegerField(default=0)
     createdAt = models.DateTimeField(auto_now_add=True)
+    slug = models.SlugField(unique=True, blank=True, null=True)
 
     returnEligible = models.BooleanField(default=False)
     exchangeEligible = models.BooleanField(default=False)
@@ -89,6 +103,11 @@ class Listing(models.Model):
         if not self.uniqueLabel and self.productType:
             last_label = Listing.objects.filter(productType=self.productType).aggregate(Max('uniqueLabel'))['uniqueLabel__max']
             self.uniqueLabel = 1 if last_label is None else last_label + 1
+        
+        if not self.slug:
+            self.slug = slugify(self.name)
+        super().save(*args, **kwargs)
+
 
         super().save(*args, **kwargs)
 
