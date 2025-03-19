@@ -27,7 +27,14 @@
         <div class="product-info">
             <div class="product-brand">{{ listing.brand }}</div>
             <h1 class="product-name">{{ listing.name }}</h1>
-            <div class="product-price">₹{{ listing.price }}</div>
+            {% if listing.discountedPrice %}
+                <div class="price-container">
+                    <div class="product-price">₹ {{ listing.discountedPrice }}</div> 
+                    <div class="product-discounted-price"><s>₹ {{ listing.price }}</s></div>
+                </div>
+            {% else %}
+                <div class="product-price">₹ {{ listing.price }}</div>
+            {% endif %}
             <p class="product-description">
             {{ listing.description }}
             </p>
@@ -82,7 +89,7 @@
             </div>
             {% endif %}
             
-            {% if listing.brand.aboutbrand.desc %}
+            {% if listing.brand.about %}
             <!-- About the Brand -->
             <div class="accordion-item">
                 <div class="accordion-header">
@@ -91,7 +98,7 @@
                 </div>
                 <div class="accordion-content">
                 <div class="accordion-content-inner">
-                    {{ listing.brand.aboutbrand.desc|linebreaksbr  }}
+                    {{ listing.brand.about|linebreaksbr  }}
                 </div>
                 </div>
             </div>

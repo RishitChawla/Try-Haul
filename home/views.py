@@ -1,7 +1,6 @@
 from django.shortcuts import render, get_object_or_404
-from .models import Listing, Category, ProductType
+from .models import Listing, Category, ProductType, Listing, Brand
 from django.http import HttpResponse
-from .models import Listing
 
 # Create your views here.
 def index(request):
@@ -42,6 +41,20 @@ def specialOffers(request):
     listings = Listing.objects.filter(specialOffer=True)
     return render(request, "listing.html", {
         "listings": listings
+    })
+
+def brand(request, brand_slug):
+    brand = get_object_or_404(Brand, slug=brand_slug)
+    listings = Listing.objects.filter(brand=brand)
+
+    return render(request, "listing.html", {
+        "listings": listings,  
+    })
+
+def brandlist(request):
+    brands = Brand.objects.all()
+    return render(request, "brandlist.html", {
+        "brands": brands
     })
 
 def category(request, category_slug):
