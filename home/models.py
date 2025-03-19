@@ -5,6 +5,15 @@ from django.utils.text import slugify
 # Brand Model
 class Brand(models.Model):
     name = models.CharField(max_length=100, unique=True)
+    logo = models.ImageField(upload_to="images/", null=True, blank=True)
+    isfeatured = models.BooleanField(default=False)
+    about = models.TextField(blank=True, null=True)
+    slug = models.SlugField(unique=True, blank=True, null=True)
+
+    def save(self, *args, **kwargs):
+        if not self.slug:
+            self.slug = slugify(self.name)
+        super().save(*args, **kwargs)
 
     def __str__(self):
         return self.name
@@ -60,13 +69,6 @@ class SizeGuide(models.Model):
 
     def __str__(self):
         return f"{self.brand.name} - {self.size.size_label}"
-    
-class AboutBrand(models.Model):
-    brand = models.OneToOneField(Brand, on_delete=models.CASCADE)
-    desc = models.TextField(blank=True, null=True)
-
-    def __str__(self):
-        return f"{self.brand.name}"
 
 # Listing Model (Main Product Listing)
 class Listing(models.Model):

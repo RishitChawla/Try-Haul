@@ -89,7 +89,7 @@
                 <nav class="categories-nav">
                   <ul class="categories-list">
                     <li class="category-item" data-category="men">
-                      <a href="#" class="category-link">Men <i class="fas fa-chevron-down"></i></a>
+                      <a href="{% url 'category' 'male' %}" class="category-link">Men <i class="fas fa-chevron-down"></i></a>
                       <div class="dropdown-menu">
                         <ul class="subcategory-list">
                           <li><a href="#">T-Shirts</a></li>
@@ -101,7 +101,7 @@
                       </div>
                     </li>
                     <li class="category-item" data-category="women">
-                      <a href="#" class="category-link">Women <i class="fas fa-chevron-down"></i></a>
+                      <a href="{% url 'category' 'female' %}" class="category-link">Women <i class="fas fa-chevron-down"></i></a>
                       <div class="dropdown-menu">
                         <ul class="subcategory-list">
                           <li><a href="#">Dresses</a></li>
@@ -109,28 +109,6 @@
                           <li><a href="#">Skirts</a></li>
                           <li><a href="#">Shoes</a></li>
                           <li><a href="#">Accessories</a></li>
-                        </ul>
-                      </div>
-                    </li>
-                    <li class="category-item" data-category="accessories">
-                      <a href="#" class="category-link">Accessories <i class="fas fa-chevron-down"></i></a>
-                      <div class="dropdown-menu">
-                        <ul class="subcategory-list">
-                          <li><a href="#">Watches</a></li>
-                          <li><a href="#">Jewelry</a></li>
-                          <li><a href="#">Belts</a></li>
-                          <li><a href="#">Hats</a></li>
-                        </ul>
-                      </div>
-                    </li>
-                    <li class="category-item" data-category="bags">
-                      <a href="#" class="category-link">Bags <i class="fas fa-chevron-down"></i></a>
-                      <div class="dropdown-menu">
-                        <ul class="subcategory-list">
-                          <li><a href="#">Handbags</a></li>
-                          <li><a href="#">Backpacks</a></li>
-                          <li><a href="#">Luggage</a></li>
-                          <li><a href="#">Wallets</a></li>
                         </ul>
                       </div>
                     </li>
@@ -145,8 +123,6 @@
                 <ul>
                   <li><a href="#">Men</a></li>
                   <li><a href="#">Women</a></li>
-                  <li><a href="#">Accessories</a></li>
-                  <li><a href="#">Bags</a></li>
                 </ul>
               </nav>
             </div>
