@@ -1,6 +1,28 @@
 from django.db import models
 from django.db.models import Max, UniqueConstraint
 from django.utils.text import slugify
+from django.contrib.auth.models import AbstractUser
+from phonenumber_field.modelfields import PhoneNumberField
+from django.contrib.auth.hashers import make_password
+
+
+# User Model
+class User(AbstractUser):
+    GENDER_CHOICES = [
+        ('M', 'Male'),
+        ('F', 'Female'),
+        ('O', 'Other'),
+    ]
+
+    # While creating account
+    dob = models.DateField(null=True, blank=True)
+    # gender = models.CharField(max_length=1, choices=GENDER_CHOICES, null=True, blank=True)
+    phone = PhoneNumberField(unique=True, region="IN")
+    createdAt = models.DateTimeField(auto_now_add=True, null=True, blank=True)
+
+    def __str__(self):
+        return self.username 
+
 
 # Brand Model
 class Brand(models.Model):

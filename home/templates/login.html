@@ -1,0 +1,1096 @@
+<!-- {% extends "layout.html" %}
+{% load static %}
+
+{% block body %}
+
+
+{% endblock %}
+
+
+{% block script %}
+    <script src="{% static 'script.js' %}"></script>
+{% endblock %} -->
+
+
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Account & Inventory - Fashion Store</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<style>
+  /* Reset and Base Styles */
+  * {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+  }
+
+  body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    line-height: 1.6;
+    color: #333;
+    background-color: #fff;
+  }
+
+  a {
+    text-decoration: none;
+    color: inherit;
+  }
+
+  ul {
+    list-style: none;
+  }
+
+  img {
+    max-width: 100%;
+    height: auto;
+    display: block;
+  }
+
+  .container {
+    width: 100%;
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 20px;
+  }
+
+  /* Button Styles */
+  .btn {
+    display: inline-block;
+    padding: 12px 24px;
+    border-radius: 4px;
+    font-weight: 600;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    border: none;
+  }
+
+  .primary-btn {
+    background-color: #D4AF37;
+    color: white;
+  }
+
+  .primary-btn:hover {
+    background-color: #C5A028;
+  }
+
+  .secondary-btn {
+    background-color: transparent;
+    color: #8B4513;
+    border: 2px solid #8B4513;
+  }
+
+  .secondary-btn:hover {
+    background-color: #8B4513;
+    color: white;
+  }
+
+  /* Header Styles */
+  .header {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 1000;
+    background-color: white;
+  }
+
+  /* Primary Navbar */
+  .primary-navbar {
+    height: 80px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  }
+
+  .primary-navbar .container {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    height: 100%;
+  }
+
+  .left-section {
+    width: 33.33%;
+    display: none;
+  }
+
+  .center-section {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+
+  .logo img {
+    height: 60px;
+    width: auto;
+  }
+
+  .right-section {
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    gap: 16px;
+  }
+
+  .icon-btn {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background: transparent;
+    border: none;
+    color: #8B4513;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+  }
+
+  .icon-btn:hover {
+    background-color: #F9F5EB;
+  }
+
+  .cart-btn {
+    position: relative;
+  }
+
+  .cart-count {
+    position: absolute;
+    top: -5px;
+    right: -5px;
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    background-color: #D4AF37;
+    color: white;
+    font-size: 12px;
+    font-weight: bold;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+
+  /* Secondary Navbar */
+  .secondary-navbar {
+    height: 48px;
+    border-top: 1px solid #eee;
+    background-color: white;
+    transition: all 0.3s ease;
+  }
+
+  .categories-nav {
+    height: 100%;
+  }
+
+  .categories-list {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100%;
+    gap: 32px;
+  }
+
+  .category-item {
+    position: relative;
+    height: 100%;
+    display: flex;
+    align-items: center;
+  }
+
+  .category-link {
+    display: flex;
+    align-items: center;
+    color: #8B4513;
+    transition: color 0.3s ease;
+  }
+
+  .category-link i {
+    margin-left: 4px;
+    font-size: 12px;
+  }
+
+  .category-link:hover {
+    color: #D4AF37;
+  }
+
+  /* Animation for secondary navbar */
+  .secondary-navbar.hidden {
+    height: 0;
+    opacity: 0;
+    overflow: hidden;
+  }
+
+  /* Mobile Menu Button */
+  .mobile-menu-btn {
+    display: block;
+    background: transparent;
+    border: none;
+    color: #8B4513;
+    font-size: 20px;
+    cursor: pointer;
+  }
+
+  /* Main Content Styles */
+  main {
+    padding-top: 128px; /* Header height (80px + 48px) */
+    min-height: calc(100vh - 400px); /* Adjust for footer */
+  }
+
+  /* Tab Navigation */
+  .tab-navigation {
+    display: flex;
+    border-bottom: 1px solid #ddd;
+    margin-bottom: 30px;
+  }
+
+  .tab-button {
+    padding: 12px 24px;
+    background: none;
+    border: none;
+    border-bottom: 3px solid transparent;
+    font-weight: 600;
+    color: #666;
+    cursor: pointer;
+    transition: all 0.3s ease;
+  }
+
+  .tab-button:hover {
+    color: #8B4513;
+  }
+
+  .tab-button.active {
+    color: #8B4513;
+    border-bottom-color: #D4AF37;
+  }
+
+  /* Tab Content */
+  .tab-content {
+    display: none;
+  }
+
+  .tab-content.active {
+    display: block;
+  }
+
+  /* Form Styles */
+  .form-container {
+    max-width: 500px;
+    margin: 0 auto;
+    padding: 30px;
+    background-color: white;
+    border-radius: 8px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  }
+
+  .form-title {
+    font-size: 24px;
+    font-weight: 600;
+    color: #8B4513;
+    margin-bottom: 20px;
+    text-align: center;
+  }
+
+  .form-group {
+    margin-bottom: 20px;
+  }
+
+  .form-label {
+    display: block;
+    margin-bottom: 8px;
+    font-weight: 500;
+  }
+
+  .form-input {
+    width: 100%;
+    padding: 12px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-size: 16px;
+    transition: border-color 0.3s ease;
+  }
+
+  .form-input:focus {
+    outline: none;
+    border-color: #D4AF37;
+  }
+
+  .form-actions {
+    margin-top: 30px;
+  }
+
+  .form-actions .btn {
+    width: 100%;
+  }
+
+  .form-footer {
+    margin-top: 20px;
+    text-align: center;
+    color: #666;
+  }
+
+  .form-footer a {
+    color: #8B4513;
+    font-weight: 500;
+  }
+
+  .form-footer a:hover {
+    color: #D4AF37;
+  }
+
+  /* Inventory Table Styles */
+  .inventory-container {
+    overflow-x: auto;
+  }
+
+  .inventory-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+  }
+
+  .inventory-title {
+    font-size: 24px;
+    font-weight: 600;
+    color: #8B4513;
+  }
+
+  .inventory-actions {
+    display: flex;
+    gap: 10px;
+  }
+
+  .inventory-search {
+    display: flex;
+    margin-bottom: 20px;
+  }
+
+  .search-input {
+    flex: 1;
+    padding: 10px 16px;
+    border: 1px solid #ddd;
+    border-right: none;
+    border-radius: 4px 0 0 4px;
+    font-size: 16px;
+  }
+
+  .search-input:focus {
+    outline: none;
+    border-color: #D4AF37;
+  }
+
+  .search-btn {
+    padding: 0 20px;
+    background-color: #D4AF37;
+    color: white;
+    border: none;
+    border-radius: 0 4px 4px 0;
+    cursor: pointer;
+  }
+
+  .inventory-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 30px;
+  }
+
+  .inventory-table th,
+  .inventory-table td {
+    padding: 12px 15px;
+    text-align: left;
+    border-bottom: 1px solid #ddd;
+  }
+
+  .inventory-table th {
+    background-color: #F9F5EB;
+    color: #8B4513;
+    font-weight: 600;
+  }
+
+  .inventory-table tr:hover {
+    background-color: #f9f9f9;
+  }
+
+  .stock-status {
+    display: inline-block;
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-size: 14px;
+    font-weight: 500;
+  }
+
+  .in-stock {
+    background-color: #e6f7e6;
+    color: #2e7d32;
+  }
+
+  .low-stock {
+    background-color: #fff8e1;
+    color: #ff8f00;
+  }
+
+  .out-of-stock {
+    background-color: #ffebee;
+    color: #c62828;
+  }
+
+  .edit-btn {
+    background: none;
+    border: none;
+    color: #8B4513;
+    cursor: pointer;
+  }
+
+  .edit-btn:hover {
+    color: #D4AF37;
+  }
+
+  /* Pagination */
+  .pagination {
+    display: flex;
+    justify-content: center;
+    margin-top: 30px;
+    gap: 8px;
+  }
+
+  .page-item {
+    width: 40px;
+    height: 40px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+  }
+
+  .page-item:hover {
+    background-color: #F9F5EB;
+  }
+
+  .page-item.active {
+    background-color: #D4AF37;
+    color: white;
+  }
+
+  .page-item.disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+
+  /* Footer Styles */
+  .footer {
+    background-color: #8B4513;
+    color: white;
+    padding: 64px 0 32px;
+    margin-top: 60px;
+  }
+
+  .footer-grid {
+    display: grid;
+    grid-template-columns: repeat(1, 1fr);
+    gap: 32px;
+  }
+
+  .footer-title {
+    font-size: 20px;
+    font-weight: 700;
+    margin-bottom: 16px;
+  }
+
+  .footer-text {
+    color: #e0e0e0;
+    margin-bottom: 16px;
+  }
+
+  .social-links {
+    display: flex;
+    gap: 16px;
+  }
+
+  .social-link {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    color: white;
+    transition: color 0.3s ease;
+  }
+
+  .social-link:hover {
+    color: #D4AF37;
+  }
+
+  .footer-links li {
+    margin-bottom: 8px;
+  }
+
+  .footer-links a {
+    color: #e0e0e0;
+    transition: color 0.3s ease;
+  }
+
+  .footer-links a:hover {
+    color: #D4AF37;
+  }
+
+  .contact-info li {
+    display: flex;
+    margin-bottom: 12px;
+    color: #e0e0e0;
+  }
+
+  .contact-info i {
+    margin-right: 12px;
+    margin-top: 4px;
+  }
+
+  .footer-bottom {
+    margin-top: 48px;
+    padding-top: 24px;
+    border-top: 1px solid rgba(255, 255, 255, 0.2);
+    text-align: center;
+    color: #e0e0e0;
+  }
+
+  /* Media Queries */
+  @media (min-width: 768px) {
+    .left-section {
+      display: block;
+    }
+
+    .mobile-menu-btn {
+      display: none;
+    }
+
+    .footer-grid {
+      grid-template-columns: repeat(2, 1fr);
+    }
+  }
+
+  @media (min-width: 992px) {
+    .footer-grid {
+      grid-template-columns: repeat(4, 1fr);
+    }
+  }
+</style>
+</head>
+<body>
+<header class="header">
+  <!-- Primary Navbar - Always visible -->
+  <div class="primary-navbar">
+    <div class="container">
+      <!-- Mobile menu button -->
+      <button class="mobile-menu-btn" id="mobileMenuBtn">
+        <i class="fas fa-bars"></i>
+      </button>
+      
+      <!-- Left section - empty on mobile, logo centered -->
+      <div class="left-section"></div>
+      
+      <!-- Center section - Logo -->
+      <div class="center-section">
+        <a href="index.html" class="logo">
+          <img src="https://via.placeholder.com/200x60?text=STORE+LOGO" alt="Store Logo">
+        </a>
+      </div>
+      
+      <!-- Right section - Search, Profile, Cart -->
+      <div class="right-section">
+        <button class="icon-btn search-btn">
+          <i class="fas fa-search"></i>
+        </button>
+        <a href="#" class="icon-btn profile-btn">
+          <i class="fas fa-user"></i>
+        </a>
+        <a href="#" class="icon-btn cart-btn">
+          <i class="fas fa-shopping-bag"></i>
+          <span class="cart-count">3</span>
+        </a>
+      </div>
+    </div>
+  </div>
+  
+  <!-- Secondary Navbar - Categories, disappears on scroll -->
+  <div class="secondary-navbar" id="secondaryNavbar">
+    <div class="container">
+      <nav class="categories-nav">
+        <ul class="categories-list">
+          <li class="category-item" data-category="men">
+            <a href="#" class="category-link">Men <i class="fas fa-chevron-down"></i></a>
+          </li>
+          <li class="category-item" data-category="women">
+            <a href="#" class="category-link">Women <i class="fas fa-chevron-down"></i></a>
+          </li>
+          <li class="category-item" data-category="accessories">
+            <a href="#" class="category-link">Accessories <i class="fas fa-chevron-down"></i></a>
+          </li>
+          <li class="category-item" data-category="bags">
+            <a href="#" class="category-link">Bags <i class="fas fa-chevron-down"></i></a>
+          </li>
+        </ul>
+      </nav>
+    </div>
+  </div>
+</header>
+
+<main>
+  <div class="container">
+    <!-- Tab Navigation -->
+    <div class="tab-navigation">
+      <button class="tab-button active" data-tab="login">Login</button>
+      <button class="tab-button" data-tab="signup">Sign Up</button>
+      <button class="tab-button" data-tab="inventory">Inventory</button>
+    </div>
+    
+    <!-- Login Tab -->
+    <div class="tab-content active" id="login">
+      <div class="form-container">
+        <h2 class="form-title">Login to Your Account</h2>
+        <form id="loginForm">
+          <div class="form-group">
+            <label for="loginEmail" class="form-label">Email Address</label>
+            <input type="email" id="loginEmail" class="form-input" required>
+          </div>
+          
+          <div class="form-group">
+            <label for="loginPassword" class="form-label">Password</label>
+            <input type="password" id="loginPassword" class="form-input" required>
+          </div>
+          
+          <div class="form-actions">
+            <button type="submit" class="btn primary-btn">Login</button>
+          </div>
+          
+          <div class="form-footer">
+            <p>Don't have an account? <a href="#" class="tab-link" data-tab="signup">Sign Up</a></p>
+            <p><a href="#">Forgot your password?</a></p>
+          </div>
+        </form>
+      </div>
+    </div>
+    
+    <!-- Sign Up Tab -->
+    <div class="tab-content" id="signup">
+      <div class="form-container">
+        <h2 class="form-title">Create an Account</h2>
+        <form id="signupForm">
+          <div class="form-group">
+            <label for="signupName" class="form-label">Full Name</label>
+            <input type="text" id="signupName" class="form-input" required>
+          </div>
+          
+          <div class="form-group">
+            <label for="signupEmail" class="form-label">Email Address</label>
+            <input type="email" id="signupEmail" class="form-input" required>
+          </div>
+          
+          <div class="form-group">
+            <label for="signupPassword" class="form-label">Password</label>
+            <input type="password" id="signupPassword" class="form-input" required>
+          </div>
+          
+          <div class="form-group">
+            <label for="signupConfirmPassword" class="form-label">Confirm Password</label>
+            <input type="password" id="signupConfirmPassword" class="form-input" required>
+          </div>
+          
+          <div class="form-actions">
+            <button type="submit" class="btn primary-btn">Create Account</button>
+          </div>
+          
+          <div class="form-footer">
+            <p>Already have an account? <a href="#" class="tab-link" data-tab="login">Login</a></p>
+          </div>
+        </form>
+      </div>
+    </div>
+    
+    <!-- Inventory Tab -->
+    <div class="tab-content" id="inventory">
+      <div class="inventory-header">
+        <h2 class="inventory-title">Product Inventory</h2>
+        <div class="inventory-actions">
+          <button class="btn secondary-btn">Export</button>
+          <button class="btn primary-btn">Add Product</button>
+        </div>
+      </div>
+      
+      <div class="inventory-search">
+        <input type="text" class="search-input" id="inventorySearch" placeholder="Search products...">
+        <button class="search-btn">
+          <i class="fas fa-search"></i>
+        </button>
+      </div>
+      
+      <div class="inventory-container">
+        <table class="inventory-table">
+          <thead>
+            <tr>
+              <th>Product ID</th>
+              <th>Product Name</th>
+              <th>Category</th>
+              <th>Size</th>
+              <th>Color</th>
+              <th>Stock</th>
+              <th>Status</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            <!-- Premium Cotton T-Shirt -->
+            <tr>
+              <td>P001-S</td>
+              <td>Premium Cotton T-Shirt</td>
+              <td>Men's Clothing</td>
+              <td>S</td>
+              <td>Black</td>
+              <td>25</td>
+              <td><span class="stock-status in-stock">In Stock</span></td>
+              <td><button class="edit-btn"><i class="fas fa-edit"></i></button></td>
+            </tr>
+            <tr>
+              <td>P001-M</td>
+              <td>Premium Cotton T-Shirt</td>
+              <td>Men's Clothing</td>
+              <td>M</td>
+              <td>Black</td>
+              <td>18</td>
+              <td><span class="stock-status in-stock">In Stock</span></td>
+              <td><button class="edit-btn"><i class="fas fa-edit"></i></button></td>
+            </tr>
+            <tr>
+              <td>P001-L</td>
+              <td>Premium Cotton T-Shirt</td>
+              <td>Men's Clothing</td>
+              <td>L</td>
+              <td>Black</td>
+              <td>7</td>
+              <td><span class="stock-status low-stock">Low Stock</span></td>
+              <td><button class="edit-btn"><i class="fas fa-edit"></i></button></td>
+            </tr>
+            <tr>
+              <td>P001-XL</td>
+              <td>Premium Cotton T-Shirt</td>
+              <td>Men's Clothing</td>
+              <td>XL</td>
+              <td>Black</td>
+              <td>0</td>
+              <td><span class="stock-status out-of-stock">Out of Stock</span></td>
+              <td><button class="edit-btn"><i class="fas fa-edit"></i></button></td>
+            </tr>
+            
+            <!-- Slim Fit Jeans -->
+            <tr>
+              <td>P002-30</td>
+              <td>Slim Fit Jeans</td>
+              <td>Men's Clothing</td>
+              <td>30</td>
+              <td>Blue</td>
+              <td>12</td>
+              <td><span class="stock-status in-stock">In Stock</span></td>
+              <td><button class="edit-btn"><i class="fas fa-edit"></i></button></td>
+            </tr>
+            <tr>
+              <td>P002-32</td>
+              <td>Slim Fit Jeans</td>
+              <td>Men's Clothing</td>
+              <td>32</td>
+              <td>Blue</td>
+              <td>15</td>
+              <td><span class="stock-status in-stock">In Stock</span></td>
+              <td><button class="edit-btn"><i class="fas fa-edit"></i></button></td>
+            </tr>
+            <tr>
+              <td>P002-34</td>
+              <td>Slim Fit Jeans</td>
+              <td>Men's Clothing</td>
+              <td>34</td>
+              <td>Blue</td>
+              <td>8</td>
+              <td><span class="stock-status low-stock">Low Stock</span></td>
+              <td><button class="edit-btn"><i class="fas fa-edit"></i></button></td>
+            </tr>
+            
+            <!-- Summer Dress -->
+            <tr>
+              <td>P003-S</td>
+              <td>Summer Floral Dress</td>
+              <td>Women's Clothing</td>
+              <td>S</td>
+              <td>Floral</td>
+              <td>5</td>
+              <td><span class="stock-status low-stock">Low Stock</span></td>
+              <td><button class="edit-btn"><i class="fas fa-edit"></i></button></td>
+            </tr>
+            <tr>
+              <td>P003-M</td>
+              <td>Summer Floral Dress</td>
+              <td>Women's Clothing</td>
+              <td>M</td>
+              <td>Floral</td>
+              <td>10</td>
+              <td><span class="stock-status in-stock">In Stock</span></td>
+              <td><button class="edit-btn"><i class="fas fa-edit"></i></button></td>
+            </tr>
+            <tr>
+              <td>P003-L</td>
+              <td>Summer Floral Dress</td>
+              <td>Women's Clothing</td>
+              <td>L</td>
+              <td>Floral</td>
+              <td>0</td>
+              <td><span class="stock-status out-of-stock">Out of Stock</span></td>
+              <td><button class="edit-btn"><i class="fas fa-edit"></i></button></td>
+            </tr>
+            
+            <!-- Leather Wallet -->
+            <tr>
+              <td>P004-OS</td>
+              <td>Leather Wallet</td>
+              <td>Accessories</td>
+              <td>One Size</td>
+              <td>Brown</td>
+              <td>20</td>
+              <td><span class="stock-status in-stock">In Stock</span></td>
+              <td><button class="edit-btn"><i class="fas fa-edit"></i></button></td>
+            </tr>
+            
+            <!-- Classic Watch -->
+            <tr>
+              <td>P005-OS</td>
+              <td>Classic Watch</td>
+              <td>Accessories</td>
+              <td>One Size</td>
+              <td>Silver</td>
+              <td>3</td>
+              <td><span class="stock-status low-stock">Low Stock</span></td>
+              <td><button class="edit-btn"><i class="fas fa-edit"></i></button></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      
+      <!-- Pagination -->
+      <div class="pagination">
+        <div class="page-item disabled">
+          <i class="fas fa-chevron-left"></i>
+        </div>
+        <div class="page-item active">1</div>
+        <div class="page-item">2</div>
+        <div class="page-item">3</div>
+        <div class="page-item">
+          <i class="fas fa-chevron-right"></i>
+        </div>
+      </div>
+    </div>
+  </div>
+</main>
+
+<footer class="footer">
+  <div class="container">
+    <div class="footer-grid">
+      <!-- About Us -->
+      <div class="footer-column">
+        <h3 class="footer-title">About Us</h3>
+        <p class="footer-text">
+          We are a premium fashion retailer dedicated to providing high-quality clothing and accessories for men and women.
+        </p>
+        <div class="social-links">
+          <a href="#" class="social-link"><i class="fab fa-facebook-f"></i></a>
+          <a href="#" class="social-link"><i class="fab fa-instagram"></i></a>
+          <a href="#" class="social-link"><i class="fab fa-twitter"></i></a>
+        </div>
+      </div>
+
+      <!-- Quick Links -->
+      <div class="footer-column">
+        <h3 class="footer-title">Quick Links</h3>
+        <ul class="footer-links">
+          <li><a href="#">About Us</a></li>
+          <li><a href="#">Collections</a></li>
+          <li><a href="#">Blog</a></li>
+          <li><a href="#">FAQ</a></li>
+        </ul>
+      </div>
+
+      <!-- Contact Us -->
+      <div class="footer-column">
+        <h3 class="footer-title">Contact Us</h3>
+        <ul class="contact-info">
+          <li>
+            <i class="fas fa-map-marker-alt"></i>
+            <span>123 Fashion Street, New York, NY 10001</span>
+          </li>
+          <li>
+            <i class="fas fa-phone"></i>
+            <span>+1 (555) 123-4567</span>
+          </li>
+          <li>
+            <i class="fas fa-envelope"></i>
+            <span>info@fashionstore.com</span>
+          </li>
+        </ul>
+      </div>
+
+      <!-- Newsletter -->
+      <div class="footer-column">
+        <h3 class="footer-title">Newsletter</h3>
+        <p class="footer-text">
+          Subscribe to our newsletter to receive updates on new arrivals and special offers.
+        </p>
+        <form class="newsletter-form">
+          <input type="email" placeholder="Your email address" required>
+          <button type="submit" class="btn primary-btn">Subscribe</button>
+        </form>
+      </div>
+    </div>
+
+    <div class="footer-bottom">
+      <p>&copy; <span id="currentYear"></span> Fashion Store. All rights reserved.</p>
+    </div>
+  </div>
+</footer>
+
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    // Set current year in footer
+    document.getElementById('currentYear').textContent = new Date().getFullYear();
+    
+    // Hide secondary navbar on scroll
+    const secondaryNavbar = document.getElementById('secondaryNavbar');
+    let lastScrollTop = 0;
+    
+    window.addEventListener('scroll', function() {
+      const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
+      
+      if (scrollTop > 50) {
+        secondaryNavbar.classList.add('hidden');
+      } else {
+        secondaryNavbar.classList.remove('hidden');
+      }
+      
+      lastScrollTop = scrollTop;
+    });
+    
+    // Tab Navigation
+    const tabButtons = document.querySelectorAll('.tab-button');
+    const tabContents = document.querySelectorAll('.tab-content');
+    const tabLinks = document.querySelectorAll('.tab-link');
+    
+    function setActiveTab(tabId) {
+      // Remove active class from all tabs
+      tabButtons.forEach(button => button.classList.remove('active'));
+      tabContents.forEach(content => content.classList.remove('active'));
+      
+      // Add active class to selected tab
+      document.querySelector(`.tab-button[data-tab="${tabId}"]`).classList.add('active');
+      document.getElementById(tabId).classList.add('active');
+    }
+    
+    tabButtons.forEach(button => {
+      button.addEventListener('click', function() {
+        const tabId = this.getAttribute('data-tab');
+        setActiveTab(tabId);
+      });
+    });
+    
+    tabLinks.forEach(link => {
+      link.addEventListener('click', function(e) {
+        e.preventDefault();
+        const tabId = this.getAttribute('data-tab');
+        setActiveTab(tabId);
+      });
+    });
+    
+    // Form Validation
+    const loginForm = document.getElementById('loginForm');
+    const signupForm = document.getElementById('signupForm');
+    
+    if (loginForm) {
+      loginForm.addEventListener('submit', function(e) {
+        e.preventDefault();
+        const email = document.getElementById('loginEmail').value;
+        const password = document.getElementById('loginPassword').value;
+        
+        // Here you would typically send this to your backend
+        alert(`Login attempt with email: ${email}`);
+      });
+    }
+    
+    if (signupForm) {
+      signupForm.addEventListener('submit', function(e) {
+        e.preventDefault();
+        const name = document.getElementById('signupName').value;
+        const email = document.getElementById('signupEmail').value;
+        const password = document.getElementById('signupPassword').value;
+        const confirmPassword = document.getElementById('signupConfirmPassword').value;
+        
+        if (password !== confirmPassword) {
+          alert('Passwords do not match!');
+          return;
+        }
+        
+        // Here you would typically send this to your backend
+        alert(`Account created for: ${name} (${email})`);
+      });
+    }
+    
+    // Inventory Search
+    const inventorySearch = document.getElementById('inventorySearch');
+    const inventoryTable = document.querySelector('.inventory-table tbody');
+    const inventoryRows = inventoryTable ? inventoryTable.querySelectorAll('tr') : [];
+    
+    if (inventorySearch) {
+      inventorySearch.addEventListener('input', function() {
+        const searchTerm = this.value.toLowerCase().trim();
+        
+        inventoryRows.forEach(row => {
+          const productName = row.querySelector('td:nth-child(2)').textContent.toLowerCase();
+          const productId = row.querySelector('td:nth-child(1)').textContent.toLowerCase();
+          const category = row.querySelector('td:nth-child(3)').textContent.toLowerCase();
+          
+          if (productName.includes(searchTerm) || productId.includes(searchTerm) || category.includes(searchTerm)) {
+            row.style.display = '';
+          } else {
+            row.style.display = 'none';
+          }
+        });
+      });
+    }
+    
+    // Pagination (for demonstration)
+    const pageItems = document.querySelectorAll('.page-item:not(.disabled)');
+    
+    pageItems.forEach(item => {
+      item.addEventListener('click', function() {
+        // Remove active class from all page items
+        pageItems.forEach(p => p.classList.remove('active'));
+        
+        // Add active class to clicked page item
+        this.classList.add('active');
+        
+        // In a real application, this would load different data
+        // For demo purposes, we'll just scroll to top
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      });
+    });
+    
+    // Mobile menu toggle
+    const mobileMenuBtn = document.getElementById('mobileMenuBtn');
+    
+    if (mobileMenuBtn) {
+      mobileMenuBtn.addEventListener('click', function() {
+        // In a real implementation, this would toggle a mobile menu
+        alert('Mobile menu would open here');
+      });
+    }
+  });
+</script>
+</body>
+</html>

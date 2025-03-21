@@ -18,6 +18,7 @@
         {% block script %}
             
         {% endblock %}
+        <script src="static/script.js"></script>
         
     </head>
 
@@ -61,11 +62,15 @@
                     </a>
                     <div class="dropdown-menu profile-menu">
                       <ul class="profile-menu-list">
-                        <li><a href="orders.html">My Orders</a></li>
-                        <li><a href="wishlist.html">My Wishlist</a></li>
-                        <li><a href="edit-profile.html">Edit Profile</a></li>
-                        <li><a href="faq.html">Contact Us</a></li>
-                        <li><a href="#" class="logout-link">Logout</a></li>
+                        {% if user.is_authenticated %}
+                            <li><a href="orders.html">My Orders</a></li>
+                            <li><a href="wishlist.html">My Wishlist</a></li>
+                            <li><a href="edit-profile.html">Edit Profile</a></li>
+                            <li><a href="faq.html">Contact Us</a></li>
+                            <li><a href="#" class="logout-link">Logout</a></li>
+                        {% else %}
+                            <li><a href="orders.html">My Orders</a></li>
+                        {% endif %}
                       </ul>
                     </div>
                   </div>

@@ -1,5 +1,7 @@
 from django.contrib import admin
-from .models import Brand, Category, Color, Size, SizeGuide, Listing, Image, ProductType
+from .models import Brand, Category, Color, Size, SizeGuide, Listing, Image, ProductType, User
+
+admin.site.register(User)
 
 @admin.register(Listing)
 class ListingAdmin(admin.ModelAdmin):
