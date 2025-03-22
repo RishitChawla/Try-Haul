@@ -25,16 +25,19 @@ document.addEventListener("DOMContentLoaded", () => {
     let lastScrollTop = 0;
 
     window.addEventListener('scroll', function() {
-      const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
-      
-      if (scrollTop > 50) {
-        secondaryNavbar.classList.add('hidden');
-      } else {
-        secondaryNavbar.classList.remove('hidden');
-      }
-      
-      lastScrollTop = scrollTop;
+        const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
+
+        if (scrollTop > lastScrollTop && scrollTop > 50) {
+            // Scrolling down, hide navbar
+            secondaryNavbar.classList.add('hidden');
+        } else {
+            // Scrolling up, show navbar
+            secondaryNavbar.classList.remove('hidden');
+        }
+
+        lastScrollTop = scrollTop <= 0 ? 0 : scrollTop; // Prevent negative values
     });
+
     
   
     // Close mobile menu when clicking outside

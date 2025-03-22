@@ -11,9 +11,9 @@ urlpatterns = [
     path('specialoffers', views.specialOffers, name="specialOffers"),
 
     # Login     
-    path("login", views.login, name="login"),
-    path('signup', views.signup, name="signup"),
-    path('logout', views.logout, name="logout"),
+    path("login", views.login_view, name="login"),
+    path('signup', views.signup_view, name="signup"),
+    path('logout', views.logout_view, name="logout"),
 
 
     path("inventory", views.inventory, name="inventory"),
@@ -23,6 +23,13 @@ urlpatterns = [
     path("edit", views.editProfile, name="editProfile"),
     path('wishlist', views.wishlist, name="wishlist"),
     path('cart', views.cart, name="cart"),
+
+    # Help
+    path('terms-of-service', views.terms, name="termsOfServices"),
+    path('privacy-policy', views.privacy, name="privacyPolicy"),
+    path('FAQ', views.faq, name="FAQ"),
+    path('return-exchange-policy', views.returnExchange, name="returnExchangePolicy"),
+    path('about-us', views.aboutUs, name="aboutUs"),
     
     # Brandlist
     path('brandlist/', views.brandlist, name='brandlist'),

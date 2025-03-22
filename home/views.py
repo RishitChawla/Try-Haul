@@ -13,7 +13,10 @@ from .models import Listing, Category, ProductType, Listing, Brand, User
 def index(request):
     return render(request, "index.html")
 
-def login(request):
+def login_view(request):
+    if request.user.is_authenticated:
+        return reverse("index")
+    
     if request.method == "POST":
 
         # Attempt to sign user in
@@ -32,24 +35,34 @@ def login(request):
     else:
         return render(request, "login.html")
 
-def signup(request):
+def signup_view(request):
+    if request.user.is_authenticated:
+        return reverse("index")
+    
     if request.method == "POST":
-        username = request.POST["username"]
-        email = request.POST["email"]
-        phone = request.POST["phone"]
+        firstName_ = request.POST["firstName"]
+        lastName_ = request.POST["lastName"]
+        email_ = request.POST["email"]
+        phone_ = request.POST["phone"]
         
 
         # Ensure password matches confirmation
-        password = request.POST["password"]
-        confirmation = request.POST["confirmation"]
-        if password != confirmation:
-            return render(request, "network/signup.html", {
+        password_ = request.POST["password"]
+        confirmation_ = request.POST["confirmation"]
+        if password_ != confirmation_:
+            return render(request, "signup.html", {
                 "message": "Passwords must match."
             })
 
         # Attempt to create new user
         try:
-            user = User.objects.create_user(username, email, password)
+            user = User.objects.create_user(
+                username=email_,
+                firstName=firstName_,
+                lastName=lastName_, 
+                email=email_, 
+                phone=phone_,
+                password=password_)
             user.save()
         except IntegrityError:
             return render(request, "signup.html", {
@@ -61,7 +74,7 @@ def signup(request):
         return render(request, "signup.html")
 
 @login_required
-def logout(request):
+def logout_view(request):
     try:
         logout(request)
         return HttpResponseRedirect(reverse("index"))
@@ -74,15 +87,19 @@ def inventory(request):
         return render(request, "inventory.html")
     raise PermissionDenied
 
+@login_required(login_url="/login")
 def orders(request):
     return render(request, "orders.html")
 
+@login_required(login_url="/login")
 def editProfile(request):
     return render(request, "editProfile.html")
 
+@login_required(login_url="/login")
 def wishlist(request):
     return render(request,"wishlist.html")
 
+@login_required(login_url="/login")
 def cart(request):
     return render(request, "cart.html")
 
@@ -127,7 +144,10 @@ def brandlist(request):
 
 def category(request, category_slug):
     category = get_object_or_404(Category, slug=category_slug)
-    listings = Listing.objects.filter(category=category)
+    if category_slug in ["male", "female"]:
+        listings = Listing.objects.filter(category__slug__in=[category_slug, "unisex"])
+    else:
+        listings = Listing.objects.filter(category=category)
 
     return render(request, "listing.html", {
         "listings": listings,
@@ -153,3 +173,18 @@ def item(request, category_slug, productType_slug, listing_slug):
     return render(request, "item.html", {
         "listing": listing
     })
+
+def terms(request):
+    return render(request, "terms.html")
+
+def privacy(request):
+    return render(request, "privacy.html")
+
+def faq(request):
+    return render(request, "FAQ.html")
+
+def returnExchange(request):
+    return render(request, "returnExchange.html")
+
+def aboutUs(request):
+    return render(request, "aboutUs.html")

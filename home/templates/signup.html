@@ -12,7 +12,8 @@
         <p class="signup-subtitle">Join us to enjoy exclusive benefits and offers</p>
         </div>
         
-        <form id="signupForm">
+        <form id="signupForm" action="{% url 'signup' %}" method="post">
+            {% csrf_token %}
             <div class="form-row">
                 <div class="form-group">
                 <label for="firstName" class="form-label">First Name</label>
@@ -21,7 +22,7 @@
                 
                 <div class="form-group">
                 <label for="lastName" class="form-label">Last Name</label>
-                <input name="lastName" type="text" id="lastName" class="form-input" placeholder="Enter your last name" required>
+                <input name="lastName" type="text" id="lastName" class="form-input" placeholder="Enter your last name">
                 </div>
             </div>
             
@@ -33,34 +34,39 @@
             <div class="form-group">
                 <label for="phone" class="form-label">Phone No.</label>
                 <input  name="phone" type="tel" id="phone" class="form-input" placeholder="Enter your Phone No." required>
-                <p id="phoneError" class="error-message"></p>
+                <p id="phoneError" class="error-message" ></p>
             </div>            
             
             <div class="form-row">
                 <div class="form-group">
                 <label for="password" class="form-label">Password</label>
-                <input type="password" id="password" class="form-input" placeholder="Create a password" required>
+                <input type="password" name="password" id="password" class="form-input" placeholder="Create a password" required>
                 </div>
                 
                 <div class="form-group">
                 <label for="confirmPassword" class="form-label">Confirm Password</label>
-                <input type="password" id="confirmPassword" class="form-input" placeholder="Confirm your password" required>
+                <input type="password" name="confirmation" id="confirmPassword" class="form-input" placeholder="Confirm your password" required>
                 </div>
             </div>
             <p class="password-requirements" style="margin-bottom: 20px;">Password must be at least 8 characters long and include a number and a special character.</p>
-            
+
+
             <div class="terms-checkbox">
                 <input type="checkbox" id="termsAgreement" required>
                 <label for="termsAgreement">
-                I agree to the <a href="#">Terms of Service</a> and <a href="#">Privacy Policy</a>. I consent to receive marketing emails.
+                I agree to the <a href="{% url 'termsOfServices' %}">Terms of Service</a> and <a href="{% url 'privacyPolicy' %}">Privacy Policy</a>. I consent to receive marketing emails.
                 </label>
             </div>
+
+            {% if message %}
+                <div class="errorMessage">{{ message }}</div> 
+            {% endif %}
             
-            <button type="submit" class="btn primary-btn signup-btn">Create Account</button>
+            <button type="submit" class="btn primary-btn signup-btn" value="Register">Create Account</button>
         </form>
         
         <div class="login-link">
-        <p>Already have an account? <a href="login.html">Login</a></p>
+        <p>Already have an account? <a href="{% url 'login' %}">Login</a></p>
         </div>
     </div>
     </div>
@@ -84,11 +90,23 @@ document.addEventListener('DOMContentLoaded', function() {
         const termsAgreement = document.getElementById('termsAgreement').checked;
         
          // Phone number validation (only digits and exactly 10 digits long)
-         const phonePattern = /^[0-9]{10}$/;
-        if (!phonePattern.test(phone)) {
-            phoneError.textContent = "Please enter a valid 10-digit mobile number.";
-            return;
-        }
+         signupForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const phone = document.getElementById('phone').value.trim();
+            const phonePattern = /^\d{10}$/;
+            const phoneError = document.getElementById("phoneError");
+
+            if (!phonePattern.test(phone)) {
+                phoneError.textContent = "Please enter a valid 10-digit mobile number.";
+                return;  // Stop submission if invalid
+            } else {
+                phoneError.textContent = ""; // Clear error if valid
+            }
+
+            this.submit(); // Proceed with form submission
+        });
+
 
         if (password.length < 8) {
         alert('Password must be at least 8 characters long!');
@@ -109,5 +127,5 @@ document.addEventListener('DOMContentLoaded', function() {
 
 
 {% block script %}
-    <!-- <script src="{% static 'script.js' %}"></script> -->
+    <script src="{% static 'script.js' %}"></script>
 {% endblock %}
