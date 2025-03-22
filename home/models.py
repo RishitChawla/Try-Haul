@@ -2,33 +2,31 @@ from django.db import models
 from django.db.models import Max, UniqueConstraint
 from django.utils.text import slugify
 from django.contrib.auth.models import AbstractUser
-from phonenumber_field.modelfields import PhoneNumberField
 from django.contrib.auth.hashers import make_password
 
 
 # User Model
 class User(AbstractUser):
-    GENDER_CHOICES = [
-        ('M', 'Male'),
-        ('F', 'Female'),
-        ('O', 'Other'),
-    ]
-
     # While creating account
-    dob = models.DateField(null=True, blank=True)
-    # gender = models.CharField(max_length=1, choices=GENDER_CHOICES, null=True, blank=True)
-    phone = PhoneNumberField(unique=True, region="IN")
+    firstName = models.CharField(max_length=30, blank=True, null=True)
+    lastName = models.CharField(max_length=30, blank=True, null=True)
+    email = models.EmailField(unique=True, blank=True, null=True)
+    phone = models.CharField(max_length=15, unique=True, blank=True, null=True)
     createdAt = models.DateTimeField(auto_now_add=True, null=True, blank=True)
 
+    USERNAME_FIELD = 'email'
+    REQUIRED_FIELDS = ['firstName', 'phone']
+
     def __str__(self):
-        return self.username 
+        return self.email 
 
 
 # Brand Model
 class Brand(models.Model):
     name = models.CharField(max_length=100, unique=True)
     logo = models.ImageField(upload_to="images/", null=True, blank=True)
-    isfeatured = models.BooleanField(default=False)
+    IsFeatured = models.BooleanField(default=False)
+    email = models.EmailField(unique=True, blank=True, null=True)
     about = models.TextField(blank=True, null=True)
     slug = models.SlugField(unique=True, blank=True, null=True)
 
