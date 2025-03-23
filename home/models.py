@@ -8,10 +8,10 @@ from django.contrib.auth.hashers import make_password
 # User Model
 class User(AbstractUser):
     # While creating account
-    firstName = models.CharField(max_length=30, blank=True, null=True)
+    firstName = models.CharField(max_length=30)
     lastName = models.CharField(max_length=30, blank=True, null=True)
-    email = models.EmailField(unique=True, blank=True, null=True)
-    phone = models.CharField(max_length=15, unique=True, blank=True, null=True)
+    email = models.EmailField(unique=True, blank=False, null=False)
+    phone = models.CharField(max_length=15, unique=True)
     createdAt = models.DateTimeField(auto_now_add=True, null=True, blank=True)
 
     USERNAME_FIELD = 'email'
@@ -28,7 +28,7 @@ class Brand(models.Model):
     IsFeatured = models.BooleanField(default=False)
     email = models.EmailField(unique=True, blank=True, null=True)
     about = models.TextField(blank=True, null=True)
-    slug = models.SlugField(unique=True, blank=True, null=True)
+    slug = models.SlugField(unique=True, blank=True)
 
     def save(self, *args, **kwargs):
         if not self.slug:
@@ -147,3 +147,19 @@ class Image(models.Model):
 
     def __str__(self):
         return f"Image for {self.listing.name}"
+
+class Wishlist(models.Model):
+    wishlistUser = models.ForeignKey(User, on_delete=models.CASCADE, related_name="wishlistUser")
+    wishlistItem = models.ForeignKey(Listing, on_delete=models.CASCADE, related_name="wishlistedItem")
+
+    def __str__(self):
+        return f"{self.wishlistItem.name} wishlisted by {self.wishlistUser.username}"
+
+class Cart(models.Model):
+    cartUser = models.ForeignKey(User, on_delete=models.CASCADE, related_name="cartUser")
+    cartItem = models.ForeignKey(Listing, on_delete=models.CASCADE, related_name="cartItem")
+    cartSize = models.ForeignKey(Size, on_delete=models.CASCADE, related_name="size")
+    cartQuantity = models.IntegerField(default=1)
+
+    def __str__(self):
+        return f"{self.cartItem.name} size {self.cartSize} in cart of {self.cartUser.username} "

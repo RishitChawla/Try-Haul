@@ -62,8 +62,8 @@
                         {% if user.is_authenticated %}
                             <li><a href="{% url 'orders' %}">My Orders</a></li>
                             <li><a href="{% url 'wishlist' %}">My Wishlist</a></li>
-                            <li><a href="edit-profile.html">Edit Profile</a></li>
-                            <li><a href="faq.html">Contact Us</a></li>
+                            <li><a href="{% url 'editProfile' %}">Edit Profile</a></li>
+                            <li><a href="{% url 'FAQ' %}">Contact Us</a></li>
                             <li><a href="{% url 'logout' %}" class="logout-link">Logout</a></li>
                         {% else %}
                             <li><a href="{% url 'login' %}">Login or Signup</a></li>
@@ -71,7 +71,7 @@
                             <li><a href="{% url 'orders' %}">My Orders</a></li>
                             <li><a href="{% url 'wishlist' %}">My Wishlist</a></li>
                             <li><a href="edit-profile.html">Edit Profile</a></li>
-                            <li><a href="faq.html">Contact Us</a></li>
+                            <li><a href="{% url 'FAQ' %}">Contact Us</a></li>
                         {% endif %}
                       </ul>
                     </div>

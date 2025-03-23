@@ -59,17 +59,34 @@
 
                 <div class="size-list">
                     {% for size in listing.sizes.all %}
-                        <div class="size-option" data-size="{{ size }}">{{ size }}</div>
+                        <div class="size-option" data-size="{{ size }}" id="size.id">{{ size }}</div>
                     {% endfor %}                
                 </div>
+                <input type="hidden" name="selected_size" id="selectedSize">
             </div>
             
+            {% if messages %}
+                {% for message in messages %}
+                    <div class="alert alert-{{ message.tags }}" style="color: green;">
+                        {{ message }}
+                    </div>
+                {% endfor %}
+            {% endif %}
+
             <!-- Action Buttons -->
             <div class="product-actions">
-            <button class="btn primary-btn add-to-cart-btn">Add to Bag</button>
-            <button class="wishlist-action-btn" aria-label="Add to Wishlist">
-                <i class="fas fa-heart"></i>
-            </button>
+            <form method="post" action="{% url 'item' listing.category.slug listing.productType.slug listing.slug %}">
+                {% csrf_token %}
+                <input type="hidden" name="size" id="selectedSizeInput">
+                <button type="submit" name="addCart" class="btn primary-btn add-to-cart-btn">Add to Bag</button>
+            </form>
+            
+            <form method="post" action="{% url 'item' listing.category.slug listing.productType.slug listing.slug %}">
+                {% csrf_token %}
+                <button type="submit" name="addWishlist" class="wishlist-action-btn {% if is_in_wishlist %}active{% endif %}" aria-label="Add to Wishlist">
+                    <i class="fas fa-heart"></i>
+                </button>
+            </form>                
             </div>
             
             {% if listing.productDetails %}
