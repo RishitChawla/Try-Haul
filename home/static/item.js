@@ -35,18 +35,34 @@ colorOptions.forEach(option => {
     });
 });
 
+
 // Size Selection
-const sizeOptions = document.querySelectorAll('.size-option');
+const sizeOptions = document.querySelectorAll(".size-option");
+const sizeInput = document.getElementById("selectedSizeInput");
 
 sizeOptions.forEach(option => {
-    option.addEventListener('click', function() {
-    // Remove active class from all size options
-    sizeOptions.forEach(o => o.classList.remove('active'));
-    
-    // Add active class to clicked option
-    this.classList.add('active');
+    option.addEventListener("click", function () {
+        // Remove active and selected class from all options
+        sizeOptions.forEach(opt => opt.classList.remove("active", "selected"));
+
+        // Add active and selected class to clicked option
+        this.classList.add("active", "selected");
+
+        // Set the hidden input value to the selected size
+        sizeInput.value = this.getAttribute("data-size");
     });
 });
+
+// Prevent adding to cart without selecting a size
+document.querySelector(".add-to-cart-btn").addEventListener("click", function (event) {
+    if (!sizeInput.value) {
+        event.preventDefault();
+        alert("Please select a size before adding to the cart.");
+    }
+});
+
+
+
 
 // Wishlist Button Toggle
 const wishlistBtn = document.querySelector('.wishlist-action-btn');

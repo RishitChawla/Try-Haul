@@ -418,7 +418,6 @@ main {
 }
 
 .section-title {
-  text-align: center;
   font-size: 32px;
   margin-bottom: 48px;
   color: #8b4513;
@@ -4147,4 +4146,396 @@ main {
   margin-top: 5px;
   display: block;
   font-weight: 700;
+}
+
+.wishlist-container {
+  padding: 40px 0;
+}
+
+.wishlist-grid {
+  display: grid;
+  grid-template-columns: repeat(1, 1fr);
+  gap: 24px;
+}
+
+.wishlist-item {
+  position: relative;
+  background-color: white;
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.wishlist-item:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 8px 16px rgba(0,0,0,0.1);
+}
+
+.wishlist-image {
+  height: 300px;
+  overflow: hidden;
+}
+
+.wishlist-image img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.5s ease;
+}
+
+.wishlist-item:hover .wishlist-image img {
+  transform: scale(1.05);
+}
+
+.wishlist-info {
+  padding: 16px;
+}
+
+.wishlist-name {
+  font-weight: 600;
+  margin-bottom: 8px;
+  font-size: 18px;
+}
+
+.wishlist-brand {
+  color: #666;
+  margin-bottom: 8px;
+  font-size: 14px;
+}
+
+.wishlist-price {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 16px;
+}
+
+.current-price {
+  font-weight: 700;
+  color: #8B4513;
+  font-size: 18px;
+}
+
+.original-price {
+  text-decoration: line-through;
+  color: #999;
+}
+
+.discount {
+  color: #2e7d32;
+  font-weight: 600;
+  font-size: 14px;
+}
+
+.wishlist-actions {
+  display: flex;
+  gap: 12px;
+}
+
+.remove-btn {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background-color: white;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  border: none;
+  cursor: pointer;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  color: #8B4513;
+  transition: background-color 0.3s ease;
+  z-index: 1;
+}
+
+.remove-btn:hover {
+  background-color: #f8f8f8;
+  color: #D4AF37;
+}
+
+.empty-wishlist {
+  text-align: center;
+  padding: 60px 0;
+}
+
+.empty-wishlist i {
+  font-size: 64px;
+  color: #ccc;
+  margin-bottom: 16px;
+}
+
+.empty-wishlist h2 {
+  font-size: 24px;
+  margin-bottom: 16px;
+  color: #8B4513;
+}
+
+.empty-wishlist p {
+  color: #666;
+  margin-bottom: 24px;
+}
+
+@media (min-width: 768px) {
+  .wishlist-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (min-width: 992px) {
+  .wishlist-grid {
+    grid-template-columns: repeat(4, 1fr);
+  }
+}
+
+.cart-section {
+  padding: 40px 0;
+}
+
+.cart-container {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+@media (min-width: 992px) {
+  .cart-container {
+    flex-direction: row;
+  }
+  
+  .cart-items-container {
+    flex: 2;
+  }
+  
+  .price-details-container {
+    flex: 1;
+  }
+}
+
+.cart-items {
+  background-color: white;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+  overflow: hidden;
+  margin-bottom: 20px;
+}
+
+.cart-item {
+  display: flex;
+  padding: 20px;
+  border-bottom: 1px solid #eee;
+}
+
+.cart-item:last-child {
+  border-bottom: none;
+}
+
+.item-image {
+  width: 100px;
+  height: 120px;
+  margin-right: 20px;
+}
+
+.item-image img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 4px;
+}
+
+.item-details {
+  flex: 1;
+}
+
+.item-name {
+  font-size: 18px;
+  font-weight: 600;
+  margin-bottom: 5px;
+}
+
+.item-brand {
+  font-size: 14px;
+  color: #666;
+  margin-bottom: 10px;
+}
+
+.item-pricing {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 10px;
+}
+
+.item-discounted-price {
+  font-size: 16px;
+  font-weight: 700;
+  color: #8B4513;
+}
+
+.item-price {
+  font-size: 14px;
+  color: #666;
+  text-decoration: line-through;
+}
+
+.item-discount {
+  font-size: 14px;
+  color: #2ecc71;
+}
+
+.item-size {
+  font-size: 14px;
+  color: #666;
+  margin-bottom: 10px;
+}
+
+.item-actions {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.quantity-selector {
+  display: flex;
+  align-items: center;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.quantity-btn {
+  width: 30px;
+  height: 30px;
+  background-color: #f5f5f5;
+  border: none;
+  cursor: pointer;
+}
+
+.quantity-input {
+  width: 40px;
+  height: 30px;
+  border: none;
+  text-align: center;
+  -moz-appearance: textfield;
+}
+
+.quantity-input::-webkit-outer-spin-button,
+.quantity-input::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+.remove-item {
+  color: #8B4513;
+  font-size: 14px;
+}
+
+.remove-item:hover {
+  color: #D4AF37;
+  text-decoration: underline;
+}
+
+.coupon-container {
+  background-color: white;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+  padding: 20px;
+}
+
+.coupon-container h3 {
+  font-size: 16px;
+  margin-bottom: 15px;
+  color: #333;
+}
+
+.coupon-form {
+  display: flex;
+  gap: 10px;
+}
+
+.coupon-form input {
+  flex: 1;
+  padding: 10px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+}
+
+.applied-coupon {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 15px;
+  background-color: #f9f5eb;
+  border-radius: 4px;
+}
+
+.coupon-code {
+  font-weight: 600;
+  color: #8B4513;
+}
+
+.coupon-value {
+  font-size: 14px;
+  color: #2ecc71;
+}
+
+.remove-coupon {
+  color: #8B4513;
+  font-size: 14px;
+}
+
+.remove-coupon:hover {
+  color: #D4AF37;
+  text-decoration: underline;
+}
+
+.price-details {
+  background-color: white;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+  padding: 20px;
+  position: sticky;
+  top: 140px;
+}
+
+.price-details-title {
+  font-size: 18px;
+  margin-bottom: 20px;
+  padding-bottom: 10px;
+  border-bottom: 1px solid #eee;
+}
+
+.price-breakdown {
+  margin-bottom: 20px;
+}
+
+.price-row {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 15px;
+  font-size: 14px;
+}
+
+.price-row.total {
+  font-size: 16px;
+  font-weight: 600;
+  padding-top: 15px;
+  border-top: 1px solid #eee;
+}
+
+.discount-text {
+  color: #2ecc71;
+}
+
+.place-order-btn {
+  width: 100%;
+  padding: 15px;
+  font-size: 16px;
+}
+
+.hidden {
+  display: none;
 }

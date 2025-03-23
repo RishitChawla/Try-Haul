@@ -1,12 +1,14 @@
 from django.contrib.auth import authenticate, login, logout
-from django.shortcuts import render, get_object_or_404
+from django.shortcuts import render, get_object_or_404, redirect
 from django.db import IntegrityError
 from django.http import HttpResponse, HttpResponseRedirect
 from django.urls import reverse
 from django.contrib.auth.decorators import login_required
 from django.core.exceptions import PermissionDenied
+from django.contrib import messages
 
-from .models import Listing, Category, ProductType, Listing, Brand, User
+
+from .models import Listing, Category, ProductType, Listing, Brand, User, Cart, Wishlist, Size
 
 
 # Create your views here.
@@ -87,21 +89,35 @@ def inventory(request):
         return render(request, "inventory.html")
     raise PermissionDenied
 
+
 @login_required(login_url="/login")
 def orders(request):
     return render(request, "orders.html")
+
 
 @login_required(login_url="/login")
 def editProfile(request):
     return render(request, "editProfile.html")
 
+
 @login_required(login_url="/login")
 def wishlist(request):
-    return render(request,"wishlist.html")
+    user = request.user
+    listings = Wishlist.objects.filter(wishlistUser=user)
+    
+    return render(request,"wishlist.html", {
+        "listings": listings,
+    })
+
 
 @login_required(login_url="/login")
 def cart(request):
-    return render(request, "cart.html")
+    listings = Cart.objects.filter(cartUser=request.user)
+    
+    return render(request, "cart.html",{
+        "listings": listings,
+    })
+
 
 def allProducts(request):
     listings = Listing.objects.all().order_by("-createdAt")
@@ -110,23 +126,6 @@ def allProducts(request):
         "category": "All Products"
     })
 
-def bestSellers(request):
-    listings = Listing.objects.filter(bestSelling=True)
-    return render(request, "listing.html", {
-        "listings": listings
-    })
-
-def newArrivals(request):
-    listings = Listing.objects.filter(newArrival=True)
-    return render(request, "listing.html", {
-        "listings": listings
-    })
-
-def specialOffers(request):
-    listings = Listing.objects.filter(specialOffer=True)
-    return render(request, "listing.html", {
-        "listings": listings
-    })
 
 def brand(request, brand_slug):
     brand = get_object_or_404(Brand, slug=brand_slug)
@@ -136,11 +135,13 @@ def brand(request, brand_slug):
         "listings": listings,  
     })
 
+
 def brandlist(request):
     brands = Brand.objects.all()
     return render(request, "brandlist.html", {
         "brands": brands
     })
+
 
 def category(request, category_slug):
     category = get_object_or_404(Category, slug=category_slug)
@@ -154,6 +155,7 @@ def category(request, category_slug):
         "category": category.name,
     })
 
+
 def productType(request, category_slug, productType_slug):
     category = get_object_or_404(Category, slug=category_slug)
     productType = get_object_or_404(ProductType, slug=productType_slug)
@@ -165,26 +167,112 @@ def productType(request, category_slug, productType_slug):
         "productType": productType.name
     })
 
+
 def item(request, category_slug, productType_slug, listing_slug):
     category = get_object_or_404(Category, slug=category_slug)
     productType = get_object_or_404(ProductType, slug=productType_slug)
     listing = get_object_or_404(Listing, category=category, productType=productType, slug=listing_slug)
 
+    is_in_wishlist = Wishlist.objects.filter(wishlistUser=request.user, wishlistItem=listing).exists()
+
+    if request.method == "POST":
+        
+        if "addCart" in request.POST:   
+            if not Cart.objects.filter(cartUser=request.user, cartItem=listing).exists(): # Add Is doesnt Exist
+                
+                selectedSize = request.POST.get("size")
+                if not selectedSize:
+                    messages.error(request, "Please select a size before adding to the cart.")
+                    return redirect(request.META.get("HTTP_REFERER", "index"))
+
+                sizeInstance = get_object_or_404(Size, size_label=selectedSize)
+
+                Cart.objects.create(cartUser=request.user, cartItem=listing, cartSize=sizeInstance)
+                messages.success(request, "Item added to cart!")  
+            
+            else: # Don't add if exists
+                messages.info(request, "Item is already in the cart.")
+
+
+        if "addWishlist" in request.POST:
+
+            wishlist_item = Wishlist.objects.filter(wishlistUser=request.user, wishlistItem=listing)
+            if wishlist_item.exists():
+                wishlist_item.delete()  # Remove from wishlist
+                is_in_wishlist = False
+                messages.success(request, "Item removed from wishlist.")  
+            else:
+                Wishlist.objects.create(wishlistUser=request.user, wishlistItem=listing) # Add to the Wishlist
+                messages.success(request, "Item added to wishlist!")  
+                is_in_wishlist = True
+
+            return redirect(reverse("item", args=[category_slug, productType_slug, listing_slug]))       
+        
+        if "addCartThroughWishlist" in request.POST:
+            if not Cart.objects.filter(cartUser=request.user, cartItem=listing).exists():
+                Cart.objects.create(cartUser=request.user, cartItem=listing)
+                messages.success(request, "Item added to cart!")  
+            else:
+                messages.info(request, "Item is already in the cart.")
+
+            return redirect(reverse("wishlist"))
+        
+        if "removeWishlistThroughWishlist" in request.POST:
+            wishlist_item = Wishlist.objects.filter(wishlistUser=request.user, wishlistItem=listing)
+            if wishlist_item.exists():
+                wishlist_item.delete()  # Remove from wishlist
+                is_in_wishlist = False
+                messages.success(request, "Item removed from wishlist.")  
+            else:
+                Wishlist.objects.create(wishlistUser=request.user, wishlistItem=listing) # Add to the Wishlist
+                messages.success(request, "Item added to wishlist!")  
+                is_in_wishlist = True
+
+            return redirect(reverse("wishlist"))
+
     return render(request, "item.html", {
-        "listing": listing
+        "listing": listing,
+        "is_in_wishlist": is_in_wishlist,
     })
+
+
+
+def bestSellers(request):
+    listings = Listing.objects.filter(bestSelling=True)
+    return render(request, "listing.html", {
+        "listings": listings
+    })
+
+
+def newArrivals(request):
+    listings = Listing.objects.filter(newArrival=True)
+    return render(request, "listing.html", {
+        "listings": listings
+    })
+
+
+def specialOffers(request):
+    listings = Listing.objects.filter(specialOffer=True)
+    return render(request, "listing.html", {
+        "listings": listings
+    })
+
 
 def terms(request):
     return render(request, "terms.html")
 
+
 def privacy(request):
     return render(request, "privacy.html")
+
 
 def faq(request):
     return render(request, "FAQ.html")
 
+
 def returnExchange(request):
     return render(request, "returnExchange.html")
+
 
 def aboutUs(request):
     return render(request, "aboutUs.html")

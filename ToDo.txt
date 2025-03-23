@@ -1,0 +1,13 @@
+cart -- must check for stock and ask for size
+number of items in cart in layout
+
+
+
+Coupon Code
+Images not loading in server
+Size Guide
+
+
+Stock
+Past orders
+Search

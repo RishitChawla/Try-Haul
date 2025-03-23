@@ -3,11 +3,185 @@
 
 {% block body %}
 
-  
+  <main>
+    <section class="cart-section">
+      <div class="container">
+        <h2 class="section-title">Your Shopping Cart</h2>
+        
+        <div class="cart-container">
+          <div class="cart-items-container">
+            <!-- Cart Items -->
+            <div class="cart-items">
+              <!-- Cart Item 1 -->
+              <div class="cart-item">
+                <div class="item-image">
+                  <img src="{% static 'images/products/tshirt1.jpg' %}" alt="Premium Cotton T-Shirt">
+                </div>
+                <div class="item-details">
+                  <h3 class="item-name">Premium Cotton T-Shirt</h3>
+                  <p class="item-brand">Brand: Fashion Co.</p>
+                  <div class="item-pricing">
+                    <span class="item-discounted-price" data-discounted-price="799">₹799</span>
+                    <span class="item-price" data-price="999">₹999</span>
+                    <span class="item-discount">20% OFF</span>
+                  </div>
+                  <p class="item-size">Size: M</p>
+                  <div class="item-actions">
+                    <div class="quantity-selector">
+                      <button class="quantity-btn minus">-</button>
+                      <input type="number" class="quantity-input" value="1" min="1" max="10">
+                      <button class="quantity-btn plus">+</button>
+                    </div>
+                    <a href="#" class="remove-item">Remove</a>
+                  </div>
+                </div>
+              </div>
+              
+            
+            <!-- Coupon Section -->
+            <div class="coupon-container">
+              <div id="coupon-section">
+                <h3>Apply Coupon</h3>
+                <form id="coupon-form" class="coupon-form">
+                  <input type="text" id="coupon-input" placeholder="Enter coupon code">
+                  <button type="submit" class="btn primary-btn">Apply</button>
+                </form>
+              </div>
+              <div id="applied-coupon-section" class="hidden">
+                <div class="applied-coupon">
+                  <div class="coupon-info">
+                    <span class="coupon-code" id="applied-coupon">WELCOME200</span>
+                    <span class="coupon-value">Applied successfully</span>
+                  </div>
+                  <a href="#" id="remove-coupon" class="remove-coupon">Remove</a>
+                </div>
+              </div>
+            </div>
+          </div>
+          
+
+          <!-- Price Details -->
+          <div class="price-details-container">
+            <div class="price-details">
+              <h3 class="price-details-title">Price Details</h3>
+              <div class="price-breakdown">
+                <div class="price-row">
+                  <span>Total MRP</span>
+                  <span id="total-mrp">₹8497</span>
+                </div>
+                <div class="price-row">
+                  <span>Discount on MRP</span>
+                  <span id="discount-on-mrp" class="discount-text">₹2200</span>
+                </div>
+                <div class="price-row">
+                  <span>Coupon Discount</span>
+                  <span id="coupon-discount" class="discount-text">₹0</span>
+                </div>
+                <div class="price-row">
+                  <span>Platform Fee</span>
+                  <span id="platform-fee">₹99</span>
+                </div>
+                <div class="price-row">
+                  <span>Shipping Fee</span>
+                  <span id="shipping-fee">₹0</span>
+                </div>
+                <div class="price-row total">
+                  <span>Total Amount</span>
+                  <span id="total-amount">₹6396</span>
+                </div>
+              </div>
+              <a href="#" class="btn primary-btn place-order-btn">Place Order</a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
 
 {% endblock %}
 
 
 {% block script %}
   <script src="{% static 'static/script.js' %}"></script>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      // Update quantity functionality
+      const quantityInputs = document.querySelectorAll('.quantity-input');
+      quantityInputs.forEach(input => {
+        input.addEventListener('change', function() {
+          updateCartTotals();
+        });
+      });
+
+      // Remove item functionality
+      const removeButtons = document.querySelectorAll('.remove-item');
+      removeButtons.forEach(button => {
+        button.addEventListener('click', function(e) {
+          e.preventDefault();
+          const cartItem = this.closest('.cart-item');
+          cartItem.remove();
+          updateCartTotals();
+        });
+      });
+
+      // Apply coupon functionality
+      const couponForm = document.getElementById('coupon-form');
+      couponForm.addEventListener('submit', function(e) {
+        e.preventDefault();
+        const couponInput = document.getElementById('coupon-input');
+        const couponCode = couponInput.value.trim();
+        
+        if (couponCode) {
+          // Simulate coupon application (in a real app, this would be an API call)
+          document.getElementById('coupon-discount').textContent = '₹200';
+          document.getElementById('applied-coupon').textContent = couponCode;
+          document.getElementById('coupon-section').classList.add('hidden');
+          document.getElementById('applied-coupon-section').classList.remove('hidden');
+          updateCartTotals();
+        }
+      });
+
+      // Remove coupon functionality
+      const removeCoupon = document.getElementById('remove-coupon');
+      removeCoupon.addEventListener('click', function(e) {
+        e.preventDefault();
+        document.getElementById('coupon-discount').textContent = '₹0';
+        document.getElementById('coupon-input').value = '';
+        document.getElementById('coupon-section').classList.remove('hidden');
+        document.getElementById('applied-coupon-section').classList.add('hidden');
+        updateCartTotals();
+      });
+
+      // Update cart totals
+      function updateCartTotals() {
+        let totalMRP = 0;
+        let totalDiscount = 0;
+        
+        quantityInputs.forEach(input => {
+          const cartItem = input.closest('.cart-item');
+          const price = parseFloat(cartItem.querySelector('.item-price').getAttribute('data-price'));
+          const discountedPrice = parseFloat(cartItem.querySelector('.item-discounted-price').getAttribute('data-discounted-price') || price);
+          const quantity = parseInt(input.value);
+          
+          totalMRP += price * quantity;
+          totalDiscount += (price - discountedPrice) * quantity;
+        });
+        
+        const couponDiscount = parseFloat(document.getElementById('coupon-discount').textContent.replace('₹', '')) || 0;
+        const platformFee = 99;
+        const shippingFee = totalMRP > 999 ? 0 : 49;
+        const totalAmount = totalMRP - totalDiscount - couponDiscount + platformFee + shippingFee;
+        
+        document.getElementById('total-mrp').textContent = '₹' + totalMRP.toFixed(2);
+        document.getElementById('discount-on-mrp').textContent = '₹' + totalDiscount.toFixed(2);
+        document.getElementById('platform-fee').textContent = '₹' + platformFee.toFixed(2);
+        document.getElementById('shipping-fee').textContent = '₹' + shippingFee.toFixed(2);
+        document.getElementById('total-amount').textContent = '₹' + totalAmount.toFixed(2);
+      }
+
+      // Initialize totals
+      updateCartTotals();
+    });
+  </script>
 {% endblock %}
