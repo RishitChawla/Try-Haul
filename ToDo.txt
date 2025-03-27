@@ -1,13 +1,25 @@
-cart -- must check for stock and ask for size
-number of items in cart in layout
-
-
+Cart Size change 
 
 Coupon Code
-Images not loading in server
 Size Guide
 
 
-Stock
+address
+payment
 Past orders
-Search
+Page Titles
+
+
+
+
+What if an item is in the cart but gets out of stock - Check for stock at payment
+
+
+
+
+
+
+
+
+
+Future: Infinite auto Scroll or Pagination
