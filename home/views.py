@@ -6,9 +6,11 @@ from django.urls import reverse
 from django.contrib.auth.decorators import login_required
 from django.core.exceptions import PermissionDenied
 from django.contrib import messages
+from django.db.models import Q
 
 
-from .models import Listing, Category, ProductType, Listing, Brand, User, Cart, Wishlist, Size
+
+from .models import Listing, Category, ProductType, Listing, Brand, User, Cart, Wishlist, Size, Stock
 
 
 # Create your views here.
@@ -118,6 +120,8 @@ def cart(request):
         "listings": listings,
     })
 
+def userAddress(request): # Should require a cart id to access
+    return render(request, "userAddress.html")
 
 def allProducts(request):
     listings = Listing.objects.all().order_by("-createdAt")
@@ -177,25 +181,42 @@ def item(request, category_slug, productType_slug, listing_slug):
 
     if request.method == "POST":
         
+        # Add Item or increase quanity of cart from listing page
         if "addCart" in request.POST:   
-            if not Cart.objects.filter(cartUser=request.user, cartItem=listing).exists(): # Add Is doesnt Exist
-                
-                selectedSize = request.POST.get("size")
-                if not selectedSize:
-                    messages.error(request, "Please select a size before adding to the cart.")
-                    return redirect(request.META.get("HTTP_REFERER", "index"))
-
-                sizeInstance = get_object_or_404(Size, size_label=selectedSize)
-
-                Cart.objects.create(cartUser=request.user, cartItem=listing, cartSize=sizeInstance)
-                messages.success(request, "Item added to cart!")  
+            selectedSize = request.POST.get("size")
             
-            else: # Don't add if exists
-                messages.info(request, "Item is already in the cart.")
+            if not selectedSize:
+                messages.error(request, "Please select a size before adding to the cart.")
+                return redirect(request.META.get("HTTP_REFERER", "index"))
 
+            sizeInstance = get_object_or_404(Size, size_label=selectedSize)
 
+            # Get stock for the selected size
+            stock_item = Stock.objects.filter(listing=listing, size=sizeInstance).first()
+
+            if not stock_item or stock_item.quantity <= 0:
+                messages.error(request, "This size is out of stock!")
+                return redirect(request.META.get("HTTP_REFERER", "index"))
+
+            # Check if the item with the same size already exists in the cart
+            cart_item, created = Cart.objects.get_or_create(
+                cartUser=request.user, 
+                cartItem=listing, 
+                cartSize=sizeInstance,
+            )
+
+            if not created:  # If the item already exists, increase quantity
+                if cart_item.cartQuantity + 1 > stock_item.quantity:
+                    messages.error(request, "Not enough stock available!")
+                else:
+                    cart_item.cartQuantity += 1
+                    cart_item.save()
+                    messages.info(request, "Increased quantity in cart.")
+            else:
+                messages.success(request, "Item added to cart!")
+
+        # Add to wishlist through item page
         if "addWishlist" in request.POST:
-
             wishlist_item = Wishlist.objects.filter(wishlistUser=request.user, wishlistItem=listing)
             if wishlist_item.exists():
                 wishlist_item.delete()  # Remove from wishlist
@@ -208,6 +229,7 @@ def item(request, category_slug, productType_slug, listing_slug):
 
             return redirect(reverse("item", args=[category_slug, productType_slug, listing_slug]))       
         
+        # Add to cart through Wishlist page
         if "addCartThroughWishlist" in request.POST:
             if not Cart.objects.filter(cartUser=request.user, cartItem=listing).exists():
                 Cart.objects.create(cartUser=request.user, cartItem=listing)
@@ -217,6 +239,7 @@ def item(request, category_slug, productType_slug, listing_slug):
 
             return redirect(reverse("wishlist"))
         
+        # Remove from Wishlist from wishlist page
         if "removeWishlistThroughWishlist" in request.POST:
             wishlist_item = Wishlist.objects.filter(wishlistUser=request.user, wishlistItem=listing)
             if wishlist_item.exists():
@@ -229,11 +252,132 @@ def item(request, category_slug, productType_slug, listing_slug):
                 is_in_wishlist = True
 
             return redirect(reverse("wishlist"))
+        
+        if "removeCartItemFromCart" in request.POST:
+            selectedSize = request.POST.get("size")
+            sizeInstance = get_object_or_404(Size, size_label=selectedSize)
+            
+            item = Cart.objects.filter(cartUser=request.user, cartItem=listing, cartSize=sizeInstance)
+            item.delete()
+            return redirect(reverse("cart"))
+        
+        # Decrease the quantity of an item in cart
+        if "decreaseQuantity" in request.POST:
+            selectedSize = request.POST.get("size")
+            sizeInstance = get_object_or_404(Size, size_label=selectedSize)
+
+            # Get the object
+            cart_item = get_object_or_404(
+                Cart,
+                cartUser=request.user, 
+                cartItem=listing, 
+                cartSize=sizeInstance,
+            )
+
+            if cart_item.cartQuantity == 1:
+                cart_item.delete()
+            else:
+                cart_item.cartQuantity -= 1 # Decrease Quantity
+                cart_item.save()
+                messages.info(request, "Decreased quantity in cart.")
+
+            return redirect(reverse("cart"))
+
+        # Increase the quantity of an item in the cart
+        if "increaseQuantity" in request.POST:
+            selectedSize = request.POST.get("size")
+            sizeInstance = get_object_or_404(Size, size_label=selectedSize)
+
+            # Get the object
+            cart_item = get_object_or_404(
+                Cart,
+                cartUser=request.user, 
+                cartItem=listing, 
+                cartSize=sizeInstance,
+            )
+
+            stock_item = Stock.objects.filter(listing=listing, size=sizeInstance).first()
+
+            if not stock_item or stock_item.quantity <= 0:
+                messages.error(request, "This size is out of stock!")
+                return redirect(request.META.get("HTTP_REFERER", "index"))
+
+            if cart_item.cartQuantity + 1 > stock_item.quantity:
+                    messages.error(request, "Not enough stock available!")
+            else:
+                cart_item.cartQuantity += 1
+                cart_item.save()
+                messages.info(request, "Increased quantity in cart.")
+
+            return redirect(reverse("cart"))
+
+        # Change size from cart page
+        if "sizeForm" in request.POST:
+            selectedSize = request.POST.get('sizeForm')
+            sizeInstance = get_object_or_404(Size, size_label=selectedSize)
+
+
+
+            # Add or increase the quantity of the listing with new size
+            stock_item = Stock.objects.filter(listing=listing, size=sizeInstance).first()
+
+            if not stock_item or stock_item.quantity <= 0:
+                messages.error(request, "This size is out of stock!")
+                return redirect(request.META.get("HTTP_REFERER", "index"))
+
+            # Check if the item with the same size already exists in the cart
+            cart_item, created = Cart.objects.get_or_create(
+                cartUser=request.user, 
+                cartItem=listing, 
+                cartSize=sizeInstance,
+            )
+
+            if not created:  # If the item already exists, increase quantity
+                if cart_item.cartQuantity + 1 > stock_item.quantity:
+                    messages.error(request, "Not enough stock available!")
+                else:
+                    cart_item.cartQuantity += 1
+                    cart_item.save()
+                    messages.info(request, "Increased quantity in cart.")
+            else:
+                messages.success(request, "Size Changed")
+
+            # Remove the previous size from the cart
+            previousSize = request.POST.get("previousSize", None)
+            previousSizeInstance = get_object_or_404(Size, size_label=previousSize)
+
+            previousItem = get_object_or_404(
+                Cart,
+                cartUser = request.user,
+                cartItem = listing,
+                cartSize = previousSize
+            )
+            previousItem.delete()
+            
+            return redirect(reverse("cart"))
+
+
+
 
     return render(request, "item.html", {
         "listing": listing,
         "is_in_wishlist": is_in_wishlist,
     })
+
+
+def search_results(request):
+    if request.method == "POST":
+        query = request.POST.get("q")
+        results = []
+
+        if query:
+            results = Listing.objects.filter(
+            Q(name__icontains=query) |  # Search in listing names
+            Q(brand__name__icontains=query)  # Search in brand names
+        ).distinct()
+
+        return render(request, "listing.html", {"query": query, "listings": results})
+
 
 
 

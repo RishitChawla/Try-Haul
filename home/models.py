@@ -139,6 +139,18 @@ class Listing(models.Model):
 
     def __str__(self):
         return f"{self.brand} - {self.name}"
+    
+class Stock(models.Model):
+    listing = models.ForeignKey(Listing, on_delete=models.CASCADE, related_name="stock")
+    size = models.ForeignKey(Size, on_delete=models.CASCADE)
+    quantity = models.PositiveIntegerField(default=0)  # Track stock for each size
+
+    class Meta:
+        unique_together = ('listing', 'size')  # Ensure each listing-size pair is unique
+
+    def __str__(self):
+        return f"{self.listing.name} - {self.size.size_label}: {self.quantity} left"
+
 
 # Image Model (To Store Multiple Images)
 class Image(models.Model):
@@ -163,3 +175,4 @@ class Cart(models.Model):
 
     def __str__(self):
         return f"{self.cartItem.name} size {self.cartSize} in cart of {self.cartUser.username} "
+    

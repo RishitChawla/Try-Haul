@@ -9,8 +9,12 @@
           <div class="listing-header">
             <div>
               <h2 class="listing-title">
-                  {{ category|title }} {% if productType %} > {% endif %} {{ productType|title }}
-              </h2>
+                  {% if query %}
+                    Search Results for "{{ query }}"
+                  {% else %}
+                    {{ category|title }} {% if productType %} > {% endif %} {{ productType|title }}
+                  {% endif %}
+                </h2>
               <p class="listing-count">{{ listings|length }} product(s)</p>
             </div>
   

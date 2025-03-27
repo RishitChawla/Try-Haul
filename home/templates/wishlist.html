@@ -53,12 +53,7 @@
                 {% endif %}
                 <!-- Add Item to Bag -->
                 <div class="wishlist-actions">
-                  <form method="post" action="{% url 'item' list.wishlistItem.category.slug list.wishlistItem.productType.slug list.wishlistItem.slug %}">
-                    {% csrf_token %}  
-                    <button type="submit" name="addCartThroughWishlist" class="btn primary-btn" style="padding: 20px;">Add to Bag</button>
-                  </form>
-                    <!-- View Item Listing -->
-                    <button onclick="window.location.href='{% url 'item' list.wishlistItem.category.slug list.wishlistItem.productType.slug list.wishlistItem.slug %}';" class="btn secondary-btn">View Details</button>
+                    <a href="{% url 'item' list.wishlistItem.category.slug list.wishlistItem.productType.slug list.wishlistItem.slug %}" class="btn secondary-btn" style="width: 100%;">View Details</a>
                 </div>
               </div>
             </div>

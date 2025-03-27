@@ -17,12 +17,17 @@ urlpatterns = [
 
 
     path("inventory", views.inventory, name="inventory"),
+    path("search/", views.search_results, name="search_results"),
     
     # After Login
-    path("orders", views.orders, name="orders"),
-    path("edit", views.editProfile, name="editProfile"),
     path('wishlist', views.wishlist, name="wishlist"),
     path('cart', views.cart, name="cart"),
+    path('user-address', views.userAddress, name="userAddress"),
+    path("orders", views.orders, name="orders"),
+    
+
+    path("edit", views.editProfile, name="editProfile"),
+    
 
     # Help
     path('terms-of-service', views.terms, name="termsOfServices"),
