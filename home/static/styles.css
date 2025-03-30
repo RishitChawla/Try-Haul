@@ -5848,7 +5848,7 @@ main {
   }
 
   .spotlight-grid {
-    grid-template-columns: repeat(3, 1fr);
+    grid-template-columns: repeat(4, 1fr);
   }
 
   .products-grid {
@@ -6183,4 +6183,8 @@ main {
 
 .hidden {
   display: none;
+}
+
+input, textarea {
+  font-family: 'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif;
 }

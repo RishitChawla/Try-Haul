@@ -3,149 +3,133 @@
 
 {% block body %}
 
-  <main>
-    <section class="cart-section">
-      <div class="container">
-        <h2 class="section-title">Your Bag</h2>
-        
-        {% if listings %}
-
-          <!-- List all Cart Items -->
-          {% for list in listings %}
-            
-            <div class="cart-container">
-              <div class="cart-items-container">
-                <!-- Cart Items -->
-                <div class="cart-items">
-
-                  <div class="cart-item">
-                    <div class="item-image">
-                      <img src="{{ list.cartItem.images.first.image.url }}" alt="Premium Cotton T-Shirt">
-                    </div>
-                    <div class="item-details">
-                      <h3 class="item-name">{{ list.cartItem.name }}</h3>
-                      <p class="item-brand">Brand: {{ list.cartItem.brand }}</p>
-                      <div class="item-pricing">
-                        
-                        <!-- Pricing -->
-                        {% if list.cartItem.discountedPrice %}
-                          <span class="item-discounted-price" data-discounted-price="{{ list.cartItem.discountedPrice }}">₹ {{ list.cartItem.discountedPrice }}</span>
-                          <span class="item-price" data-price="{{ list.cartItem.price }}">₹{{ list.cartItem.price }}</span>
-                        {% else %}
-                          <span class="item-price" style="color: #8B4513; text-decoration: solid; font-weight: 700; font-size: 16px;" data-price="{{ list.cartItem.price }}">₹{{ list.cartItem.price }}</span>
-                        {% endif %}
-                      </div>
-                      
-                      {% if messages %}
-                        {% for message in messages %}
-                          <div class="alert alert-{{ message.tags }}" style="color: green;">
-                              {{ message }}
-                          </div>
-                        {% endfor %}
+<main>
+  <section class="cart-section">
+    <div class="container">
+      <h2 class="section-title">Your Bag</h2>
+      
+      {% if listings %}
+        <div class="cart-container">
+          <div class="cart-items-container">
+            <!-- Cart Items -->
+            <div class="cart-items">
+              {% for list in listings %}
+                <div class="cart-item">
+                  <div class="item-image">
+                    <img src="{{ list.cartItem.images.first.image.url }}" alt="Premium Cotton T-Shirt">
+                  </div>
+                  <div class="item-details">
+                    <h3 class="item-name">{{ list.cartItem.name }}</h3>
+                    <p class="item-brand">Brand: {{ list.cartItem.brand }}</p>
+                    <div class="item-pricing">
+                      <!-- Pricing -->
+                      {% if list.cartItem.discountedPrice %}
+                        <span class="item-discounted-price" data-discounted-price="{{ list.cartItem.discountedPrice }}">₹ {{ list.cartItem.discountedPrice }}</span>
+                        <span class="item-price" data-price="{{ list.cartItem.price }}">₹{{ list.cartItem.price }}</span>
+                      {% else %}
+                        <span class="item-price" style="color: #8B4513; text-decoration: solid; font-weight: 700; font-size: 16px;" data-price="{{ list.cartItem.price }}">₹{{ list.cartItem.price }}</span>
                       {% endif %}
+                    </div>
+                    
+                    {% if messages %}
+                      {% for message in messages %}
+                        <div class="alert alert-{{ message.tags }}" style="color: green;">
+                          {{ message }}
+                        </div>
+                      {% endfor %}
+                    {% endif %}
 
-                      <!-- Size Display -->
-                      <label class="item-size" for="item-size">Size: {{ list.cartSize }}</label>
+                    <!-- Size Display -->
+                    <label class="item-size" for="item-size">Size: {{ list.cartSize }}</label>
 
-
-
-                      <!-- Quantity Form -->
-                      <div class="item-actions" style="margin-top: 15px;">
-                        <form method="POST" action="{% url 'item' list.cartItem.category.slug list.cartItem.productType.slug list.cartItem.slug %}">  
-                          {% csrf_token %}
-
-                          <!-- Quantity Increase/Decrease -->
-                          <div class="quantity-selector">
-                            <button type="submit" name="decreaseQuantity" class="quantity-btn minus">-</button>
-                            <input type="number" class="quantity-input" value="{{ list.cartQuantity }}" disabled>
-                            <input type="hidden" name="size" value="{{ list.cartSize }}">
-                            <button type="submit" name="increaseQuantity" class="quantity-btn plus">+</button>
-                          </div>
-                        </form>
-                          
-                        <!-- Remove Listing from cart -->
-                        <form method="POST" action="{% url 'item' list.cartItem.category.slug list.cartItem.productType.slug list.cartItem.slug %}">  
-                          {% csrf_token %}
+                    <!-- Quantity Form -->
+                    <div class="item-actions" style="margin-top: 15px;">
+                      <form method="POST" action="{% url 'item' list.cartItem.category.slug list.cartItem.productType.slug list.cartItem.slug %}">  
+                        {% csrf_token %}
+                        <!-- Quantity Increase/Decrease -->
+                        <div class="quantity-selector">
+                          <button type="submit" name="decreaseQuantity" class="quantity-btn minus">-</button>
+                          <input type="number" class="quantity-input" value="{{ list.cartQuantity }}" disabled>
                           <input type="hidden" name="size" value="{{ list.cartSize }}">
-                          <button type="submit" name="removeCartItemFromCart" class="remove-item" style="background-color: transparent; border: transparent; cursor: pointer;">Remove</button>
-                        </form>
+                          <button type="submit" name="increaseQuantity" class="quantity-btn plus">+</button>
+                        </div>
+                      </form>
                         
-                      </div>
+                      <!-- Remove Listing from cart -->
+                      <form method="POST" action="{% url 'item' list.cartItem.category.slug list.cartItem.productType.slug list.cartItem.slug %}">  
+                        {% csrf_token %}
+                        <input type="hidden" name="size" value="{{ list.cartSize }}">
+                        <button type="submit" name="removeCartItemFromCart" class="remove-item" style="background-color: transparent; border: transparent; cursor: pointer;">Remove</button>
+                      </form>
                     </div>
                   </div>
-
-          {% endfor %}
-                
-              
-              <!-- Coupon Section -->
-              <div class="coupon-container">
-                <div id="coupon-section">
-                  <h3>Apply Coupon</h3>
-                  <form id="coupon-form" class="coupon-form">
-                    <input type="text" id="coupon-input" placeholder="Enter coupon code">
-                    <button type="submit" class="btn primary-btn">Apply</button>
-                  </form>
                 </div>
-                <div id="applied-coupon-section" class="hidden">
-                  <div class="applied-coupon">
-                    <div class="coupon-info">
-                      <span class="coupon-code" id="applied-coupon">WELCOME200</span>
-                      <span class="coupon-value">Applied successfully</span>
-                    </div>
-                    <a href="#" id="remove-coupon" class="remove-coupon">Remove</a>
-                  </div>
-                </div>
-              </div>
+              {% endfor %}
             </div>
             
-
-            <!-- Price Details -->
-            <div class="price-details-container">
-              <div class="price-details">
-                <h3 class="price-details-title">Price Details</h3>
-                <div class="price-breakdown">
-                  <div class="price-row">
-                    <span>Total MRP</span>
-                    <span id="total-mrp">-</span>
+            <!-- Coupon Section -->
+            <div class="coupon-container">
+              <div id="coupon-section">
+                <h3>Apply Coupon</h3>
+                <form id="coupon-form" class="coupon-form">
+                  <input type="text" id="coupon-input" placeholder="Enter coupon code">
+                  <button type="submit" class="btn primary-btn">Apply</button>
+                </form>
+              </div>
+              <div id="applied-coupon-section" class="hidden">
+                <div class="applied-coupon">
+                  <div class="coupon-info">
+                    <span class="coupon-code" id="applied-coupon">WELCOME200</span>
+                    <span class="coupon-value">Applied successfully</span>
                   </div>
-                  <div class="price-row">
-                    <span>Discount on MRP</span>
-                    <span id="discount-on-mrp" class="discount-text">-</span>
-                  </div>
-                  <div class="price-row">
-                    <span>Coupon Discount</span>
-                    <span id="coupon-discount" class="discount-text">-</span>
-                  </div>
-                  <div class="price-row">
-                    <span>Shipping Fee</span>
-                    <span id="shipping-fee" class="discount-text">FREE!</span>
-                  </div>
-                  <div class="price-row total">
-                    <span>Total Amount</span>
-                      <span id="total-amount">-</span>
-                  </div>
+                  <a href="#" id="remove-coupon" class="remove-coupon">Remove</a>
                 </div>
-                <a href="{% url 'userAddress' %}" class="btn primary-btn place-order-btn">Place Order</a>
               </div>
             </div>
           </div>
+
+          <!-- Price Details -->
+          <div class="price-details-container">
+            <div class="price-details">
+              <h3 class="price-details-title">Price Details</h3>
+              <div class="price-breakdown">
+                <div class="price-row">
+                  <span>Total MRP</span>
+                  <span id="total-mrp">-</span>
+                </div>
+                <div class="price-row">
+                  <span>Discount on MRP</span>
+                  <span id="discount-on-mrp" class="discount-text">-</span>
+                </div>
+                <div class="price-row">
+                  <span>Coupon Discount</span>
+                  <span id="coupon-discount" class="discount-text">-</span>
+                </div>
+                <div class="price-row">
+                  <span>Shipping</span>
+                  <span id="shipping-fee" class="discount-text">FREE!</span>
+                </div>
+                <div class="price-row total">
+                  <span>Total Amount</span>
+                  <span id="total-amount">-</span>
+                </div>
+              </div>
+              <a id="place-order-btn" href="#" class="btn primary-btn place-order-btn">Place Order</a>
+            </div>
+          </div>
         </div>
-      </section>
-
-    {% else %}
-
-      <!-- When there are no Cart items -->
-      <div class="empty-wishlist">
-        <i class="fas fa-shopping-bag"></i>
-        <h2>Your Cart is Empty</h2>
-        <p>Save your favorite items to your wishlist and they'll appear here.</p>
-        <a href="{% url 'allProducts' %}" class="btn primary-btn">Start Shopping</a>
-      </div>
-
-    {% endif %}
-    
-  </main>
-
+      {% else %}
+        <!-- When there are no Cart items -->
+        <div class="empty-wishlist">
+          <i class="fas fa-shopping-bag"></i>
+          <h2>Your Cart is Empty</h2>
+          <p>Save your favorite items to your wishlist and they'll appear here.</p>
+          <a href="{% url 'allProducts' %}" class="btn primary-btn">Start Shopping</a>
+        </div>
+      {% endif %}
+    </div>
+  </section>
+</main>
 {% endblock %}
 
 
@@ -198,7 +182,6 @@
         quantityInputs.forEach(input => {
           const cartItem = input.closest('.cart-item');
           const price = parseFloat(cartItem.querySelector('.item-price').getAttribute('data-price'));
-          console.log(cartItem.querySelector('.item-discounted-price'))
           let discountedPrice = parseFloat(cartItem.querySelector('.item-discounted-price')?.getAttribute('data-discounted-price'));
           discountedPrice = isNaN(discountedPrice) ? price : discountedPrice;
 
@@ -208,7 +191,8 @@
           totalDiscount += (price - discountedPrice) * quantity;
         });
         
-        const couponDiscount = parseFloat(document.getElementById('coupon-discount').textContent.replace('₹', '')) || 0;
+        let couponDiscount = parseFloat(document.getElementById('coupon-discount').textContent.replace('₹', ''));
+        couponDiscount = isNaN(couponDiscount) ? 0 : couponDiscount;
         const totalAmount = totalMRP - totalDiscount - couponDiscount;
         
         document.getElementById('total-mrp').textContent = '₹' + totalMRP.toFixed(2);
@@ -218,6 +202,27 @@
 
       // Initialize totals
       updateCartTotals();
+    
+      document.getElementById('place-order-btn').addEventListener('click', function(event) {
+          event.preventDefault();
+
+          let totalMRP = parseFloat(document.getElementById('total-mrp').textContent.replace('₹', '').trim()) || 0;
+          let discount = parseFloat(document.getElementById('discount-on-mrp').textContent.replace('₹', '').trim()) || 0;
+          let couponDiscount = parseFloat(document.getElementById('coupon-discount').textContent.replace('₹', '').trim()) || 0;
+          let totalAmount = parseFloat(document.getElementById('total-amount').textContent.replace('₹', '').trim()) || 0;
+
+          // Ensure all values are numeric
+          totalAmount = totalAmount.toFixed(2);
+          totalMRP = totalMRP.toFixed(2);
+          discount = discount.toFixed(2);
+          couponDiscount = couponDiscount.toFixed(2);
+
+          let placeOrderURL = `/store-order/${totalAmount}/${totalMRP}/${discount}/${couponDiscount}/`;
+
+          // Redirect to the correct URL
+          window.location.href = placeOrderURL;
+      });
+
     });
   </script>
 {% endblock %}

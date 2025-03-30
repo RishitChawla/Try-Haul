@@ -22,23 +22,34 @@
       <div class="container">
         <h2 class="section-title">Our Collections</h2>
         <div class="spotlight-grid">
+          <!-- Best Sellers -->
           <a href="{% url 'bestSellers' %}" class="spotlight-item">
             <div class="spotlight-image-container">
-              <img src="{https://via.placeholder.com/800x600}" alt="Best Sellers">
+              <img src="{% static 'images/bestSellers.jpg' %}" alt="Best Sellers">
               <div class="spotlight-overlay"></div>
               <h3 class="spotlight-title">Best Sellers</h3>
             </div>
           </a>
+          <!-- New Arrivals -->
           <a href="{% url 'newArrivals' %}" class="spotlight-item">
             <div class="spotlight-image-container">
-              <img src="https://via.placeholder.com/800x600" alt="New Arrivals">
+              <img src="{% static 'images/newArrivals.jpg' %}" alt="New Arrivals">
               <div class="spotlight-overlay"></div>
               <h3 class="spotlight-title">New Arrivals</h3>
             </div>
           </a>
+          <!-- Limited time deals -->
+          <a href="{% url 'limitedTimeDeals' %}" class="spotlight-item">
+            <div class="spotlight-image-container">
+              <img src="{% static 'images/limitedTimeDeals.jpg' %}" alt="Limited Time Deals">
+              <div class="spotlight-overlay"></div>
+              <h3 class="spotlight-title">Limited Time Deals</h3>
+            </div>
+          </a>
+          <!-- Special Offers -->
           <a href="{% url 'specialOffers' %}" class="spotlight-item">
             <div class="spotlight-image-container">
-              <img src="https://via.placeholder.com/800x600" alt="Special Offers">
+              <img src="{% static 'images/specialOffers.jpg' %}" alt="Special Offers">
               <div class="spotlight-overlay"></div>
               <h3 class="spotlight-title">Special Offers</h3>
             </div>

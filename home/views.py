@@ -1,7 +1,7 @@
 from django.contrib.auth import authenticate, login, logout
 from django.shortcuts import render, get_object_or_404, redirect
 from django.db import IntegrityError
-from django.http import HttpResponse, HttpResponseRedirect
+from django.http import HttpResponse, HttpResponseRedirect, HttpResponseForbidden
 from django.urls import reverse
 from django.contrib.auth.decorators import login_required
 from django.core.exceptions import PermissionDenied
@@ -10,7 +10,7 @@ from django.db.models import Q
 
 
 
-from .models import Listing, Category, ProductType, Listing, Brand, User, Cart, Wishlist, Size, Stock
+from .models import Listing, Category, ProductType, Listing, Brand, User, Cart, Wishlist, Size, Stock, UserAddress
 
 
 # Create your views here.
@@ -120,31 +120,118 @@ def cart(request):
         "listings": listings,
     })
 
-def userAddress(request): # Should require a cart id to access
-    return render(request, "userAddress.html")
 
-def allProducts(request):
-    listings = Listing.objects.all().order_by("-createdAt")
-    return render(request, "listing.html", {
-        'listings': listings,
-        "category": "All Products"
+def storeOrderDetails(request, totalAmount, totalMRP, discount, couponDiscount):
+    if request.method == "POST":
+        if "saveAddressBtn" in request.POST:
+            fullName = request.POST.get("full-name")
+            phone = request.POST.get("phone")
+            address = request.POST.get("address")
+            city = request.POST.get("city")
+            state = request.POST.get("state")
+            pincode = request.POST.get("pincode")
+
+            address = UserAddress(
+                user=request.user,
+                fullName=fullName,
+                phone=phone,
+                address=address,
+                city=city,
+                state=state,
+                pincode=pincode
+            )
+            address.save()
+        
+        if "addAddressBtn" in request.POST:
+            fullName = request.POST.get("full-name")
+            phone = request.POST.get("phone")
+            address = request.POST.get("address")
+            city = request.POST.get("city")
+            state = request.POST.get("state")
+            pincode = request.POST.get("pincode")
+
+            address = UserAddress(
+                user=request.user,
+                fullName=fullName,
+                phone=phone,
+                address=address,
+                city=city,
+                state=state,
+                pincode=pincode
+            )
+            address.save()
+
+
+        if "removeAddress" in request.POST:
+            addressID = request.POST.get("addressID")
+            
+            address = get_object_or_404(UserAddress, id=addressID)
+            address.delete()
+
+
+        # Takes to payment page
+        if "continueToPaymentBtn" in request.POST: 
+            orderAddress = request.POST.get("selectedAddress")
+            orderAddressObj = get_object_or_404(UserAddress, id=orderAddress)
+
+            # Convert the object into a dictionary (store only essential fields)
+            orderAddressData = {
+                "fullName": orderAddressObj.fullName,
+                "phone": orderAddressObj.phone,
+                "address": orderAddressObj.address,
+                "city": orderAddressObj.city,
+                "state": orderAddressObj.state,
+                "pincode": orderAddressObj.pincode,
+            }
+
+            request.session["payment_details"] = {
+                "paymentAddress": orderAddressData,
+                "paymentAmount": totalAmount
+            }
+            return redirect(reverse('payment'))
+
+
+        # Redirect back to address page
+        request.session['order_details'] = {
+        'totalAmount': totalAmount,
+        'totalMRP': totalMRP,
+        'discount': discount,
+        'couponDiscount': couponDiscount,
+        }
+        return redirect(reverse('address'))
+
+
+    request.session['order_details'] = {
+        'totalAmount': totalAmount,
+        'totalMRP': totalMRP,
+        'discount': discount,
+        'couponDiscount': couponDiscount,
+    }
+    return redirect(reverse('address'))
+
+
+
+
+def address(request):
+    if 'order_details' not in request.session:
+        return HttpResponseForbidden("Access Denied. Please proceed through the checkout.")
+
+
+    order_details = request.session.get('order_details')  # Remove after use
+    addresses = UserAddress.objects.filter(user=request.user)
+    return render(request, 'userAddress.html', {
+        "order_details":order_details,
+        "addresses": addresses
     })
 
 
-def brand(request, brand_slug):
-    brand = get_object_or_404(Brand, slug=brand_slug)
-    listings = Listing.objects.filter(brand=brand)
+def payment(request):
+    if 'payment_details' not in request.session:
+        return HttpResponseForbidden("Access Denied. Please proceed through the checkout.")
 
-    return render(request, "listing.html", {
-        "listings": listings,  
-    })
+    payment_details = request.session.pop('payment_details')
+    return render(request, 'payment.html', payment_details)
 
-
-def brandlist(request):
-    brands = Brand.objects.all()
-    return render(request, "brandlist.html", {
-        "brands": brands
-    })
 
 
 def category(request, category_slug):
@@ -177,7 +264,10 @@ def item(request, category_slug, productType_slug, listing_slug):
     productType = get_object_or_404(ProductType, slug=productType_slug)
     listing = get_object_or_404(Listing, category=category, productType=productType, slug=listing_slug)
 
-    is_in_wishlist = Wishlist.objects.filter(wishlistUser=request.user, wishlistItem=listing).exists()
+    if request.user.is_authenticated:
+        is_in_wishlist = Wishlist.objects.filter(wishlistUser=request.user, wishlistItem=listing).exists()
+    else:
+        is_in_wishlist = False
 
     if request.method == "POST":
         
@@ -311,52 +401,7 @@ def item(request, category_slug, productType_slug, listing_slug):
 
             return redirect(reverse("cart"))
 
-        # Change size from cart page
-        if "sizeForm" in request.POST:
-            selectedSize = request.POST.get('sizeForm')
-            sizeInstance = get_object_or_404(Size, size_label=selectedSize)
-
-
-
-            # Add or increase the quantity of the listing with new size
-            stock_item = Stock.objects.filter(listing=listing, size=sizeInstance).first()
-
-            if not stock_item or stock_item.quantity <= 0:
-                messages.error(request, "This size is out of stock!")
-                return redirect(request.META.get("HTTP_REFERER", "index"))
-
-            # Check if the item with the same size already exists in the cart
-            cart_item, created = Cart.objects.get_or_create(
-                cartUser=request.user, 
-                cartItem=listing, 
-                cartSize=sizeInstance,
-            )
-
-            if not created:  # If the item already exists, increase quantity
-                if cart_item.cartQuantity + 1 > stock_item.quantity:
-                    messages.error(request, "Not enough stock available!")
-                else:
-                    cart_item.cartQuantity += 1
-                    cart_item.save()
-                    messages.info(request, "Increased quantity in cart.")
-            else:
-                messages.success(request, "Size Changed")
-
-            # Remove the previous size from the cart
-            previousSize = request.POST.get("previousSize", None)
-            previousSizeInstance = get_object_or_404(Size, size_label=previousSize)
-
-            previousItem = get_object_or_404(
-                Cart,
-                cartUser = request.user,
-                cartItem = listing,
-                cartSize = previousSize
-            )
-            previousItem.delete()
-            
-            return redirect(reverse("cart"))
-
-
+        
 
 
     return render(request, "item.html", {
@@ -379,6 +424,28 @@ def search_results(request):
         return render(request, "listing.html", {"query": query, "listings": results})
 
 
+def allProducts(request):
+    listings = Listing.objects.all().order_by("-createdAt")
+    return render(request, "listing.html", {
+        'listings': listings,
+        "category": "All Products"
+    })
+
+
+def brand(request, brand_slug):
+    brand = get_object_or_404(Brand, slug=brand_slug)
+    listings = Listing.objects.filter(brand=brand)
+
+    return render(request, "listing.html", {
+        "listings": listings,  
+    })
+
+
+def brandlist(request):
+    brands = Brand.objects.all()
+    return render(request, "brandlist.html", {
+        "brands": brands
+    })
 
 
 def bestSellers(request):
@@ -390,6 +457,12 @@ def bestSellers(request):
 
 def newArrivals(request):
     listings = Listing.objects.filter(newArrival=True)
+    return render(request, "listing.html", {
+        "listings": listings
+    })
+
+def limitedTimeDeals(request):
+    listings = Listing.objects.filter(limitedTime=True)
     return render(request, "listing.html", {
         "listings": listings
     })

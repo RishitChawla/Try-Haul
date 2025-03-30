@@ -1,12 +1,13 @@
-Cart Size change 
+layout of cart
+
 
 Coupon Code
 Size Guide
 
-
-address
 payment
-Past orders
+mail to us, customer and seller
+orders
+Number of items in the cart
 Page Titles
 
 
