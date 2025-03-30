@@ -1,5 +1,3 @@
-font of input field
-product types automatically updates to navbar
 Page Titles
 search bar adjust
 

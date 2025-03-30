@@ -67,7 +67,7 @@
                         {% if user.is_authenticated %}
                             <li><a href="{% url 'orders' %}">My Orders</a></li>
                             <li><a href="{% url 'wishlist' %}">My Wishlist</a></li>
-                            <li><a href="{% url 'editProfile' %}">Edit Profile</a></li>
+                            <!-- <li><a href="{% url 'editProfile' %}">Edit Profile</a></li> -->
                             <li><a href="{% url 'FAQ' %}">Contact Us</a></li>
                             <li><a href="{% url 'logout' %}" class="logout-link">Logout</a></li>
                         {% else %}
@@ -104,11 +104,10 @@
                       <a href="{% url 'category' 'male' %}" class="category-link">Men <i class="fas fa-chevron-down"></i></a>
                       <div class="dropdown-menu">
                         <ul class="subcategory-list">
-                          <li><a href="#">T-Shirts</a></li>
-                          <li><a href="#">Trousers</a></li>
-                          <li><a href="#">Shoes</a></li>
-                          <li><a href="#">Jackets</a></li>
-                          <li><a href="#">Accessories</a></li>
+                          <li><a href="{% url 'productType' 'male' 'tshirt' %}">T-Shirts</a></li>
+                          <li><a href="{% url 'productType' 'male' 'trousers' %}">Trousers</a></li>
+                          <li><a href="{% url 'productType' 'male' 'pants' %}">Pants</a></li>
+                          <li><a href="{% url 'productType' 'male' 'shorts' %}">Shorts</a></li>
                         </ul>
                       </div>
                     </li>
@@ -116,11 +115,21 @@
                       <a href="{% url 'category' 'female' %}" class="category-link">Women <i class="fas fa-chevron-down"></i></a>
                       <div class="dropdown-menu">
                         <ul class="subcategory-list">
-                          <li><a href="#">Dresses</a></li>
-                          <li><a href="#">Tops</a></li>
-                          <li><a href="#">Skirts</a></li>
-                          <li><a href="#">Shoes</a></li>
-                          <li><a href="#">Accessories</a></li>
+                          <li><a href="{% url 'productType' 'female' 'tshirt' %}">T-Shirts</a></li>
+                          <li><a href="{% url 'productType' 'female' 'trousers' %}">Trousers</a></li>
+                          <li><a href="{% url 'productType' 'female' 'dress' %}">Dress</a></li>
+                          <li><a href="{% url 'productType' 'female' 'top' %}">Top</a></li>
+                          <li><a href="{% url 'productType' 'female' 'pants' %}">Pants</a></li>
+                          <li><a href="{% url 'productType' 'female' 'shorts' %}">Shorts</a></li>
+                        </ul>
+                      </div>
+                    </li>
+                    <li class="category-item" data-category="women">
+                      <a href="{% url 'category' 'accessories' %}" class="category-link">Accessories <i class="fas fa-chevron-down"></i></a>
+                      <div class="dropdown-menu">
+                        <ul class="subcategory-list">
+                          <li><a href="{% url 'productType' 'accessories' 'bags' %}">Bags</a></li>
+                          <li><a href="{% url 'productType' 'accessories' 'jewellery' %}">Jewellery</a></li>
                         </ul>
                       </div>
                     </li>
