@@ -24,7 +24,8 @@ urlpatterns = [
     # After Login
     path('wishlist', views.wishlist, name="wishlist"),
     path('cart', views.cart, name="cart"),
-     path("store-order/<str:totalAmount>/<str:totalMRP>/<str:discount>/<str:couponDiscount>/", views.storeOrderDetails, name="storeOrderDetails"),
+    path("apply-coupon/", views.apply_coupon, name="apply_coupon"),
+    path("store-order/<str:totalAmount>/<str:totalMRP>/<str:discount>/<str:couponDiscount>/", views.storeOrderDetails, name="storeOrderDetails"),
     path("address/", views.address, name="address"),
     path('payment', views.payment, name="payment"),
     path("orders", views.orders, name="orders"),

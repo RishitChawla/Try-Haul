@@ -31,12 +31,12 @@
                       {% endif %}
                     </div>
                     
-                    {% if messages %}
-                      {% for message in messages %}
-                        <div class="alert alert-{{ message.tags }}" style="color: green;">
-                          {{ message }}
+                    {% if request.session.cart_message %}
+                      {% if list.id == request.session.cart_message.cart_item_id %}
+                        <div class="alert alert-success" style="color: green;">
+                          {{ request.session.cart_message.message }}
                         </div>
-                      {% endfor %}
+                      {% endif %}
                     {% endif %}
 
                     <!-- Size Display -->
@@ -71,7 +71,7 @@
             <div class="coupon-container">
               <div id="coupon-section">
                 <h3>Apply Coupon</h3>
-                <form id="coupon-form" class="coupon-form">
+                <form method="POST"  id="coupon-form" class="coupon-form">
                   <input type="text" id="coupon-input" placeholder="Enter coupon code">
                   <button type="submit" class="btn primary-btn">Apply</button>
                 </form>
@@ -146,33 +146,6 @@
         });
       });
 
-      // Apply coupon functionality
-      const couponForm = document.getElementById('coupon-form');
-      couponForm.addEventListener('submit', function(e) {
-        e.preventDefault();
-        const couponInput = document.getElementById('coupon-input');
-        const couponCode = couponInput.value.trim();
-        
-        if (couponCode) {
-          // Simulate coupon application (in a real app, this would be an API call)
-          document.getElementById('coupon-discount').textContent = '₹200';
-          document.getElementById('applied-coupon').textContent = couponCode;
-          document.getElementById('coupon-section').classList.add('hidden');
-          document.getElementById('applied-coupon-section').classList.remove('hidden');
-          updateCartTotals();
-        }
-      });
-
-      // Remove coupon functionality
-      const removeCoupon = document.getElementById('remove-coupon');
-      removeCoupon.addEventListener('click', function(e) {
-        e.preventDefault();
-        document.getElementById('coupon-discount').textContent = '₹0';
-        document.getElementById('coupon-input').value = '';
-        document.getElementById('coupon-section').classList.remove('hidden');
-        document.getElementById('applied-coupon-section').classList.add('hidden');
-        updateCartTotals();
-      });
 
       // Update cart totals
       function updateCartTotals() {
@@ -221,6 +194,59 @@
 
           // Redirect to the correct URL
           window.location.href = placeOrderURL;
+      });
+
+      const couponForm = document.getElementById("coupon-form");
+      const couponInput = document.getElementById("coupon-input");
+      const couponDiscountElement = document.getElementById("coupon-discount");
+      const appliedCouponSection = document.getElementById("applied-coupon-section");
+      const appliedCouponCode = document.getElementById("applied-coupon");
+      const removeCouponBtn = document.getElementById("remove-coupon");
+
+      couponForm.addEventListener("submit", function (event) {
+          event.preventDefault();
+
+          let couponCode = couponInput.value.trim();
+          let totalAmount = parseFloat(document.getElementById("total-amount").textContent.replace("₹", "").trim());
+
+          if (couponCode === "") {
+              alert("Please enter a coupon code.");
+              return;
+          }
+
+          fetch("/apply-coupon/", {
+              method: "POST",
+              headers: {
+                  "Content-Type": "application/x-www-form-urlencoded",
+                  "X-CSRFToken": document.querySelector('[name=csrfmiddlewaretoken]').value,
+              },
+              body: new URLSearchParams({
+                  coupon_code: couponCode,
+                  total_amount: totalAmount
+              })
+          })
+          .then(response => response.json())
+          .then(data => {
+              if (data.success) {
+                  couponDiscountElement.textContent = `₹${data.discount.toFixed(2)}`;
+                  appliedCouponCode.textContent = couponCode;
+                  appliedCouponSection.classList.remove("hidden");
+                  
+                  let newTotalAmount = totalAmount - data.discount;
+                  document.getElementById("total-amount").textContent = `₹${newTotalAmount.toFixed(2)}`;
+                  alert(data.message);
+              } else {
+                  alert(data.message);
+              }
+          })
+          .catch(error => console.error("Error:", error));
+      });
+
+      removeCouponBtn.addEventListener("click", function (event) {
+          event.preventDefault();
+          couponDiscountElement.textContent = "-";
+          appliedCouponSection.classList.add("hidden");
+          updateCartTotals();
       });
 
     });

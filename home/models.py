@@ -9,10 +9,10 @@ from django.contrib.auth.hashers import make_password
 class User(AbstractUser):
     # While creating account
     firstName = models.CharField(max_length=30)
-    lastName = models.CharField(max_length=30, blank=True, null=True)
-    email = models.EmailField(unique=True, blank=False, null=False)
+    lastName = models.CharField(max_length=30)
+    email = models.EmailField(unique=True)
     phone = models.CharField(max_length=15, unique=True)
-    createdAt = models.DateTimeField(auto_now_add=True, null=True, blank=True)
+    createdAt = models.DateTimeField(auto_now_add=True)
 
     USERNAME_FIELD = 'email'
     REQUIRED_FIELDS = ['firstName', 'phone']
@@ -81,14 +81,21 @@ class Size(models.Model):
 
 # Size Guide Model (Different for each Brand)
 class SizeGuide(models.Model):
-    brand = models.ForeignKey(Brand, on_delete=models.CASCADE)
-    size = models.ForeignKey(Size, on_delete=models.CASCADE)
-    chest = models.FloatField()
-    waist = models.FloatField()
-    hip = models.FloatField()
+    brand = models.ForeignKey(Brand, on_delete=models.CASCADE, related_name="size_guides")
+    category = models.ForeignKey('Category', on_delete=models.CASCADE, related_name="size_guides", default="tshirt")
+    
+    size_label = models.CharField(max_length=10, default="S")  # Example: S, M, L, XL
+    chest = models.CharField(max_length=100, blank=True, null=True)
+    waist = models.CharField(max_length=100, blank=True, null=True)
+    hips = models.CharField(max_length=100, blank=True, null=True)  
+    
+
+    class Meta:
+        unique_together = ('brand', 'category', 'size_label')  # Ensures unique size per brand-category
 
     def __str__(self):
-        return f"{self.brand.name} - {self.size.size_label}"
+        return f"{self.brand.name} - {self.category.name} ({self.size_label})"
+    
 
 # Listing Model (Main Product Listing)
 class Listing(models.Model):
@@ -190,7 +197,11 @@ class UserAddress(models.Model):
         return f"{self.user} : {self.fullName} "
     
 class Coupon(models.Model):
-    code = models.CharField(max_length=20)
+    code = models.CharField(max_length=20, unique=True)
     percentage = models.IntegerField()
     minCartValue = models.IntegerField()
     maxDiscount = models.IntegerField()
+    isActive = models.BooleanField(default=True)
+
+    def __str__(self):
+        return self.code
