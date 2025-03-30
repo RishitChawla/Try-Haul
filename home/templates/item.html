@@ -54,7 +54,9 @@
             <div class="size-options">
                 <div class="size-header">
                     <h3>Size</h3>
-                    <span class="size-guide-link" id="sizeGuideLink">Size Guide</span>
+                    {% if size_guide %}
+                        <span class="size-guide-link" id="sizeGuideLink">Size Guide</span>
+                    {% endif %}
                 </div>
 
                 <div class="size-list">
@@ -146,54 +148,60 @@
         </div>
     </div>
     </section>
+    {% for size in size_guide %}
+        {{ size.size_label }}
+        {{ size.chest }}
+        <br>
+    {% endfor %}
+    
 </main>
 
 <!-- Size Guide Modal -->
 <div class="modal-overlay" id="sizeGuideModal">
     <div class="modal">
-    <button class="modal-close" id="modalClose">
-        <i class="fas fa-times"></i>
-    </button>
-    <h2 class="modal-title">Size Guide</h2>
-    <table class="size-table">
-        <thead>
-        <tr>
-            <th>Size</th>
-            <th>Chest (inches)</th>
-            <th>Waist (inches)</th>
-            <th>Hips (inches)</th>
-        </tr>
-        </thead>
-        <tbody>
-        <tr>
-            <td>S</td>
-            <td>36-38</td>
-            <td>28-30</td>
-            <td>35-37</td>
-        </tr>
-        <tr>
-            <td>M</td>
-            <td>39-41</td>
-            <td>31-33</td>
-            <td>38-40</td>
-        </tr>
-        <tr>
-            <td>L</td>
-            <td>42-44</td>
-            <td>34-36</td>
-            <td>41-43</td>
-        </tr>
-        <tr>
-            <td>XL</td>
-            <td>45-47</td>
-            <td>37-39</td>
-            <td>44-46</td>
-        </tr>
-        </tbody>
-    </table>
-    <p>Measurements are body measurements, not garment measurements. If you're between sizes, we recommend sizing up for a more comfortable fit.</p>
+        <button class="modal-close" id="modalClose">
+            <i class="fas fa-times"></i>
+        </button>
+        <h2 class="modal-title">Size Guide</h2>
+
+        {% if size_guide %}
+            {% with first_guide=size_guide.0 %}
+                <table class="size-table">
+                    <thead>
+                        <tr>
+                            <th>Size</th>
+                            {% if first_guide.Chest %}<th>Chest (inches)</th>{% endif %}
+                            {% if first_guide.FrontLength %}<th>Front Length (inches)</th>{% endif %}
+                            {% if first_guide.Accross_Shoulders %}<th>Across Shoulders (inches)</th>{% endif %}
+                            {% if first_guide.Sleeve_length %}<th>Sleeve Length (inches)</th>{% endif %}
+                            {% if first_guide.Waist %}<th>Waist (inches)</th>{% endif %}
+                            {% if first_guide.Inseam_Length %}<th>Inseam Length (inches)</th>{% endif %}
+                            {% if first_guide.Hip %}<th>Hip (inches)</th>{% endif %}
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for guide in size_guide %}
+                        <tr>
+                            <td>{{ guide.size_label }}</td>
+                            {% if first_guide.Chest %}<td>{{ guide.Chest }}</td>{% endif %}
+                            {% if first_guide.FrontLength %}<td>{{ guide.FrontLength }}</td>{% endif %}
+                            {% if first_guide.Accross_Shoulders %}<td>{{ guide.Accross_Shoulders }}</td>{% endif %}
+                            {% if first_guide.Sleeve_length %}<td>{{ guide.Sleeve_length }}</td>{% endif %}
+                            {% if first_guide.Waist %}<td>{{ guide.Waist }}</td>{% endif %}
+                            {% if first_guide.Inseam_Length %}<td>{{ guide.Inseam_Length }}</td>{% endif %}
+                            {% if first_guide.Hip %}<td>{{ guide.Hip }}</td>{% endif %}
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            {% endwith %}
+            <p>Measurements are body measurements, not garment measurements. If you're between sizes, we recommend sizing up for a more comfortable fit.</p>
+        {% else %}
+            <p>No size guide available.</p>
+        {% endif %}
     </div>
 </div>
+
 
 
 

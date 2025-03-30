@@ -82,12 +82,17 @@ class Size(models.Model):
 # Size Guide Model (Different for each Brand)
 class SizeGuide(models.Model):
     brand = models.ForeignKey(Brand, on_delete=models.CASCADE, related_name="size_guides")
-    category = models.ForeignKey('Category', on_delete=models.CASCADE, related_name="size_guides", default="tshirt")
+    category = models.ForeignKey('Category', on_delete=models.CASCADE, related_name="size_guides") # male, female
+    ProductType = models.ForeignKey(ProductType, on_delete=models.CASCADE, related_name="size_guides")  # Trouser, Trouser
     
-    size_label = models.CharField(max_length=10, default="S")  # Example: S, M, L, XL
-    chest = models.CharField(max_length=100, blank=True, null=True)
-    waist = models.CharField(max_length=100, blank=True, null=True)
-    hips = models.CharField(max_length=100, blank=True, null=True)  
+    size_label = models.CharField(max_length=10)  # Example: S, M, L, XL
+    Chest = models.CharField(max_length=10, blank=True, null=True)
+    FrontLength = models.CharField(max_length=10, blank=True, null=True)
+    Accross_Shoulders = models.CharField(max_length=10, blank=True, null=True)
+    Sleeve_length = models.CharField(max_length=10, blank=True, null=True)  
+    Waist = models.CharField(max_length=10, blank=True, null=True)  
+    Inseam_Length = models.CharField(max_length=10, blank=True, null=True)  
+    Hip = models.CharField(max_length=10, blank=True, null=True)  
     
 
     class Meta:

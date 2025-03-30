@@ -10,7 +10,7 @@ from django.db.models import Q
 
 
 
-from .models import Listing, Category, ProductType, Listing, Brand, User, Cart, Wishlist, Size, Stock, UserAddress, Coupon
+from .models import Listing, Category, ProductType, Listing, Brand, User, Cart, Wishlist, Size, Stock, UserAddress, Coupon, SizeGuide
 
 
 # Create your views here.
@@ -292,6 +292,8 @@ def item(request, category_slug, productType_slug, listing_slug):
     productType = get_object_or_404(ProductType, slug=productType_slug)
     listing = get_object_or_404(Listing, category=category, productType=productType, slug=listing_slug)
 
+    size_guide = SizeGuide.objects.filter(brand=listing.brand, category=listing.category, ProductType=listing.productType)
+
     if request.user.is_authenticated:
         is_in_wishlist = Wishlist.objects.filter(wishlistUser=request.user, wishlistItem=listing).exists()
     else:
@@ -437,6 +439,7 @@ def item(request, category_slug, productType_slug, listing_slug):
     return render(request, "item.html", {
         "listing": listing,
         "is_in_wishlist": is_in_wishlist,
+        "size_guide": size_guide
     })
 
 # Clears the session message after displaying it
