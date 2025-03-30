@@ -88,7 +88,7 @@
                   </a>
                   <a href="{% url 'cart' %}" class="icon-btn cart-btn">
                     <i class="fas fa-shopping-bag"></i>
-                    <span class="cart-count">3</span>   <!-- Cart Items -->
+                    <span class="cart-count">{{ cart_items_count }}</span>
                   </a>
                 </div>
               </div>
@@ -195,9 +195,9 @@
                   <h3 class="footer-title" style="margin-left: 10px;">Socials</h3>
                   <p class="footer-text">
                     <div class="social-links">
-                      <a href="#" class="social-link"><i class="fab fa-facebook-f"></i></a>
-                      <a href="#" class="social-link"><i class="fab fa-instagram"></i></a>
-                      <!-- <a href="#" class="social-link"><i class="fab fa-twitter"></i></a> -->
+                      <a href="#" target="_blank" rel="noopener noreferrer" class="social-link"><i class="fab fa-facebook-f"></i></a>
+                      <a href="https://www.instagram.com/tryandhauls?igsh=ZDFpYm94YmI2Mmpy" target="_blank" rel="noopener noreferrer" class="social-link"><i class="fab fa-instagram"></i></a>
+                      <a href="#" target="_blank" rel="noopener noreferrer" class="social-link"><i class="fab fa-twitter"></i></a>
                     </div>
                   </p>
                   

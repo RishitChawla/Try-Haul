@@ -1,12 +1,14 @@
-Size Guide
+font of input field
+product types automatically updates to navbar
+Page Titles
+search bar adjust
 
 payment
 mail to us, customer and seller
 orders
-Number of items in the cart
-Page Titles
-product types automatically updates to navbar
-font of input field
+upload to aws
+
+
 
 
 
