@@ -1,7 +1,7 @@
 from django.contrib.auth import authenticate, login, logout
 from django.shortcuts import render, get_object_or_404, redirect
 from django.db import IntegrityError
-from django.http import HttpResponse, HttpResponseRedirect, HttpResponseForbidden
+from django.http import HttpResponse, HttpResponseRedirect, HttpResponseForbidden, JsonResponse
 from django.urls import reverse
 from django.contrib.auth.decorators import login_required
 from django.core.exceptions import PermissionDenied
@@ -10,7 +10,7 @@ from django.db.models import Q
 
 
 
-from .models import Listing, Category, ProductType, Listing, Brand, User, Cart, Wishlist, Size, Stock, UserAddress
+from .models import Listing, Category, ProductType, Listing, Brand, User, Cart, Wishlist, Size, Stock, UserAddress, Coupon
 
 
 # Create your views here.
@@ -119,6 +119,34 @@ def cart(request):
     return render(request, "cart.html",{
         "listings": listings,
     })
+
+def apply_coupon(request):
+    if request.method == "POST":
+        coupon_code = request.POST.get("coupon_code")
+        total_amount = float(request.POST.get("total_amount", 0))
+
+        try:
+            coupon = Coupon.objects.get(code=coupon_code, isActive=True)
+            if total_amount >= coupon.minCartValue:
+                discount_amount = (total_amount * coupon.percentage) / 100
+                discount_amount = min(discount_amount, coupon.maxDiscount)
+
+                return JsonResponse({
+                    "success": True,
+                    "discount": discount_amount,
+                    "message": f"Coupon {coupon.code} applied successfully!",
+                })
+            else:
+                return JsonResponse({
+                    "success": False,
+                    "message": f"Minimum order value must be ₹{coupon.minCartValue} to use this coupon."
+                })
+        except Coupon.DoesNotExist:
+            return JsonResponse({"success": False, "message": "Invalid or expired coupon code."})
+    
+    return JsonResponse({"success": False, "message": "Invalid request."})
+
+
 
 
 def storeOrderDetails(request, totalAmount, totalMRP, discount, couponDiscount):
@@ -319,16 +347,6 @@ def item(request, category_slug, productType_slug, listing_slug):
 
             return redirect(reverse("item", args=[category_slug, productType_slug, listing_slug]))       
         
-        # Add to cart through Wishlist page
-        if "addCartThroughWishlist" in request.POST:
-            if not Cart.objects.filter(cartUser=request.user, cartItem=listing).exists():
-                Cart.objects.create(cartUser=request.user, cartItem=listing)
-                messages.success(request, "Item added to cart!")  
-            else:
-                messages.info(request, "Item is already in the cart.")
-
-            return redirect(reverse("wishlist"))
-        
         # Remove from Wishlist from wishlist page
         if "removeWishlistThroughWishlist" in request.POST:
             wishlist_item = Wishlist.objects.filter(wishlistUser=request.user, wishlistItem=listing)
@@ -360,16 +378,22 @@ def item(request, category_slug, productType_slug, listing_slug):
             cart_item = get_object_or_404(
                 Cart,
                 cartUser=request.user, 
-                cartItem=listing, 
                 cartSize=sizeInstance,
             )
 
             if cart_item.cartQuantity == 1:
                 cart_item.delete()
+                request.session["cart_message"] = {
+                    "message": f"Removed {cart_item.cartItem.name} from cart.",
+                    "cart_item_id": cart_item.id
+                }
             else:
-                cart_item.cartQuantity -= 1 # Decrease Quantity
+                cart_item.cartQuantity -= 1  # Decrease Quantity
                 cart_item.save()
-                messages.info(request, "Decreased quantity in cart.")
+                request.session["cart_message"] = {
+                    "message": f"Decreased quantity for {cart_item.cartItem.name}.",
+                    "cart_item_id": cart_item.id
+                }
 
             return redirect(reverse("cart"))
 
@@ -382,32 +406,43 @@ def item(request, category_slug, productType_slug, listing_slug):
             cart_item = get_object_or_404(
                 Cart,
                 cartUser=request.user, 
-                cartItem=listing, 
                 cartSize=sizeInstance,
             )
 
-            stock_item = Stock.objects.filter(listing=listing, size=sizeInstance).first()
+            stock_item = Stock.objects.filter(listing=cart_item.cartItem, size=sizeInstance).first()
 
             if not stock_item or stock_item.quantity <= 0:
-                messages.error(request, "This size is out of stock!")
+                request.session["cart_message"] = {
+                    "message": "This size is out of stock!",
+                    "cart_item_id": cart_item.id
+                }
                 return redirect(request.META.get("HTTP_REFERER", "index"))
 
             if cart_item.cartQuantity + 1 > stock_item.quantity:
-                    messages.error(request, "Not enough stock available!")
+                request.session["cart_message"] = {
+                    "message": "Not enough stock available!",
+                    "cart_item_id": cart_item.id
+                }
             else:
                 cart_item.cartQuantity += 1
                 cart_item.save()
-                messages.info(request, "Increased quantity in cart.")
+                request.session["cart_message"] = {
+                    "message": f"Increased quantity for {cart_item.cartItem.name}.",
+                    "cart_item_id": cart_item.id
+                }
 
             return redirect(reverse("cart"))
-
-        
 
 
     return render(request, "item.html", {
         "listing": listing,
         "is_in_wishlist": is_in_wishlist,
     })
+
+# Clears the session message after displaying it
+def clear_cart_message(request):
+    request.session.pop("cart_message", None)
+    return JsonResponse({"success": True})
 
 
 def search_results(request):

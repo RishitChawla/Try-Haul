@@ -1,6 +1,3 @@
-layout of cart
-
-
 Coupon Code
 Size Guide
 
@@ -9,7 +6,7 @@ mail to us, customer and seller
 orders
 Number of items in the cart
 Page Titles
-
+product types automatically updates to navbar
 
 
 
@@ -18,7 +15,10 @@ What if an item is in the cart but gets out of stock - Check for stock at paymen
 
 
 
-
+REMOVE FROM ADMIN PORTAL
+user address
+wishlist
+cart
 
 
 
