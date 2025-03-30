@@ -5,10 +5,12 @@ urlpatterns = [
     path("", views.index, name="index"),
 
     # Listings
-    path('allproducts', views.allProducts, name="allProducts"),    
-    path('bestsellers', views.bestSellers, name="bestSellers"),
-    path('newarrivals', views.newArrivals, name="newArrivals"),
-    path('specialoffers', views.specialOffers, name="specialOffers"),
+    path('all-products', views.allProducts, name="allProducts"),    
+    path('best-sellers', views.bestSellers, name="bestSellers"),
+    path('new-arrivals', views.newArrivals, name="newArrivals"),
+    path('special-offers', views.specialOffers, name="specialOffers"),
+    path('limited-time-deals', views.limitedTimeDeals, name="limitedTimeDeals"),
+    
 
     # Login     
     path("login", views.login_view, name="login"),
@@ -22,7 +24,9 @@ urlpatterns = [
     # After Login
     path('wishlist', views.wishlist, name="wishlist"),
     path('cart', views.cart, name="cart"),
-    path('user-address', views.userAddress, name="userAddress"),
+     path("store-order/<str:totalAmount>/<str:totalMRP>/<str:discount>/<str:couponDiscount>/", views.storeOrderDetails, name="storeOrderDetails"),
+    path("address/", views.address, name="address"),
+    path('payment', views.payment, name="payment"),
     path("orders", views.orders, name="orders"),
     
 

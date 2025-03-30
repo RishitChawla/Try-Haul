@@ -104,14 +104,15 @@ class Listing(models.Model):
     description = models.TextField(blank=True, null=True)
     productDetails = models.TextField(blank=True, null=True)
     deliveryTime = models.CharField(max_length=255, default="5-7 days")
-    stockQuantity = models.PositiveIntegerField(default=0)
     createdAt = models.DateTimeField(auto_now_add=True)
     slug = models.SlugField(unique=True, blank=True, null=True)
 
     returnEligible = models.BooleanField(default=False)
     exchangeEligible = models.BooleanField(default=False)
+
     bestSelling = models.BooleanField(default=False)
     newArrival = models.BooleanField(default=False)
+    limitedTime = models.BooleanField(default=False)
     specialOffer = models.BooleanField(default=False)
     
 
@@ -176,3 +177,20 @@ class Cart(models.Model):
     def __str__(self):
         return f"{self.cartItem.name} size {self.cartSize} in cart of {self.cartUser.username} "
     
+class UserAddress(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="addressUser")
+    fullName = models.CharField(max_length=30)
+    phone = models.CharField(max_length=15)
+    address = models.TextField()
+    city = models.CharField(max_length=30)
+    state = models.CharField(max_length=30)
+    pincode = models.CharField(max_length=20)
+
+    def __str__(self):
+        return f"{self.user} : {self.fullName} "
+    
+class Coupon(models.Model):
+    code = models.CharField(max_length=20)
+    percentage = models.IntegerField()
+    minCartValue = models.IntegerField()
+    maxDiscount = models.IntegerField()

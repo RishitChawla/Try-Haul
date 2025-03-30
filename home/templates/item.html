@@ -73,21 +73,23 @@
                 {% endfor %}
             {% endif %}
 
-            <!-- Action Buttons -->
-            <div class="product-actions">
-            <form method="post" action="{% url 'item' listing.category.slug listing.productType.slug listing.slug %}">
-                {% csrf_token %}
-                <input type="hidden" name="size" id="selectedSizeInput">
-                <button type="submit" name="addCart" class="btn primary-btn add-to-cart-btn">Add to Bag</button>
-            </form>
-            
-            <form method="post" action="{% url 'item' listing.category.slug listing.productType.slug listing.slug %}">
-                {% csrf_token %}
-                <button type="submit" name="addWishlist" class="wishlist-action-btn {% if is_in_wishlist %}active{% endif %}" aria-label="Add to Wishlist">
-                    <i class="fas fa-heart"></i>
-                </button>
-            </form>                
-            </div>
+            {% if request.user.is_authenticated %}
+                <!-- Action Buttons -->
+                <div class="product-actions">
+                <form method="post" action="{% url 'item' listing.category.slug listing.productType.slug listing.slug %}">
+                    {% csrf_token %}
+                    <input type="hidden" name="size" id="selectedSizeInput">
+                    <button type="submit" name="addCart" class="btn primary-btn add-to-cart-btn">Add to Bag</button>
+                </form>
+                
+                <form method="post" action="{% url 'item' listing.category.slug listing.productType.slug listing.slug %}">
+                    {% csrf_token %}
+                    <button type="submit" name="addWishlist" class="wishlist-action-btn {% if is_in_wishlist %}active{% endif %}" aria-label="Add to Wishlist">
+                        <i class="fas fa-heart"></i>
+                    </button>
+                </form>                
+                </div>
+            {% endif %}
             
             {% if listing.productDetails %}
             <!-- Accordion Sections -->
