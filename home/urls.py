@@ -9,7 +9,7 @@ urlpatterns = [
     path('best-sellers', views.bestSellers, name="bestSellers"),
     path('new-arrivals', views.newArrivals, name="newArrivals"),
     path('special-offers', views.specialOffers, name="specialOffers"),
-    path('limited-time-deals', views.limitedTimeDeals, name="limitedTimeDeals"),
+    path('limited-drops', views.limitedDrops, name="limitedDrops"),
     
 
     # Login     

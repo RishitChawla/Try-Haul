@@ -7,7 +7,7 @@
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-        <title>Try&Haul</title>
+        <title>{% block title %}Try&Hauls{% endblock %}</title>
         
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
         <link href="{% static 'styles.css' %}" rel="stylesheet">
@@ -46,13 +46,15 @@
                 
                 <!-- Right section - Search, Profile, Cart -->
                 <div class="right-section">
-                    <div class="search-container">
-                        <form method="post" action="{% url 'search_results'%}">
-                          {% csrf_token %}
-                          <input type="text" name="q" placeholder="Search for products, brands and more"> 
-                        </form>                        
-                        <i class="search-icon fas fa-search"></i>
-                     </div>
+                  <div class="search-container" id="searchContainer">
+                    <form method="post" action="{% url 'search_results'%}">
+                        {% csrf_token %}
+                        <input type="text" name="q" placeholder="Search for products, brands and more">
+                    </form>
+                </div>
+                
+                <!-- Search Icon -->
+                <i class="search-icon fas fa-search" id="searchIcon"></i>
                   
                   
                   <!-- <a  class="icon-btn profile-btn">
@@ -104,10 +106,12 @@
                       <a href="{% url 'category' 'male' %}" class="category-link">Men <i class="fas fa-chevron-down"></i></a>
                       <div class="dropdown-menu">
                         <ul class="subcategory-list">
-                          <li><a href="{% url 'productType' 'male' 'tshirt' %}">T-Shirts</a></li>
-                          <li><a href="{% url 'productType' 'male' 'trousers' %}">Trousers</a></li>
-                          <li><a href="{% url 'productType' 'male' 'pants' %}">Pants</a></li>
-                          <li><a href="{% url 'productType' 'male' 'shorts' %}">Shorts</a></li>
+                          <li><a href="{% url 'productType' 'male' 'tshirt' %}">T-Shirt</a></li>
+                          <li><a href="{% url 'productType' 'male' 'shirt' %}">Shirt</a></li>
+                          <li><a href="{% url 'productType' 'male' 'hoodie' %}">hoodie</a></li>
+                          <li><a href="{% url 'productType' 'male' 'trousers' %}">Trouser</a></li>
+                          <li><a href="{% url 'productType' 'male' 'pants' %}">Pant</a></li>
+                          <li><a href="{% url 'productType' 'male' 'shorts' %}">Short</a></li>
                         </ul>
                       </div>
                     </li>
@@ -115,12 +119,14 @@
                       <a href="{% url 'category' 'female' %}" class="category-link">Women <i class="fas fa-chevron-down"></i></a>
                       <div class="dropdown-menu">
                         <ul class="subcategory-list">
-                          <li><a href="{% url 'productType' 'female' 'tshirt' %}">T-Shirts</a></li>
-                          <li><a href="{% url 'productType' 'female' 'trousers' %}">Trousers</a></li>
+                          <li><a href="{% url 'productType' 'female' 'tshirt' %}">T-Shirt</a></li>
+                          <li><a href="{% url 'productType' 'female' 'shirt' %}">Shirt</a></li>
+                          <li><a href="{% url 'productType' 'female' 'hoodie' %}">hoodie</a></li>
+                          <li><a href="{% url 'productType' 'female' 'trousers' %}">Trouser</a></li>
                           <li><a href="{% url 'productType' 'female' 'dress' %}">Dress</a></li>
                           <li><a href="{% url 'productType' 'female' 'top' %}">Top</a></li>
-                          <li><a href="{% url 'productType' 'female' 'pants' %}">Pants</a></li>
-                          <li><a href="{% url 'productType' 'female' 'shorts' %}">Shorts</a></li>
+                          <li><a href="{% url 'productType' 'female' 'pants' %}">Pant</a></li>
+                          <li><a href="{% url 'productType' 'female' 'shorts' %}">Short</a></li>
                         </ul>
                       </div>
                     </li>
@@ -130,6 +136,9 @@
                         <ul class="subcategory-list">
                           <li><a href="{% url 'productType' 'accessories' 'bags' %}">Bags</a></li>
                           <li><a href="{% url 'productType' 'accessories' 'jewellery' %}">Jewellery</a></li>
+                          <li><a href="{% url 'productType' 'accessories' 'cap' %}">Cap</a></li>
+                          <li><a href="{% url 'productType' 'accessories' 'belt' %}">Belt</a></li>
+                          <li><a href="{% url 'productType' 'accessories' 'watch' %}">Watch</a></li>
                         </ul>
                       </div>
                     </li>
@@ -142,9 +151,47 @@
             <!-- Mobile menu -->
             <div class="mobile-menu" id="mobileMenu">
               <nav>
-                <ul>
-                  <li><a href="{% url 'category' 'male' %}">Men</a></li>
-                  <li><a href="{% url 'category' 'female' %}">Women</a></li>
+                <ul class="categories-list">
+                  <li class="category-item" data-category="men">
+                    <a href="{% url 'category' 'male' %}" class="category-link">Men <i class="fas fa-chevron-down"></i></a>
+                    <div class="dropdown-menu">
+                      <ul class="subcategory-list">
+                        <li><a href="{% url 'productType' 'male' 'tshirt' %}">T-Shirt</a></li>
+                        <li><a href="{% url 'productType' 'male' 'shirt' %}">Shirt</a></li>
+                          <li><a href="{% url 'productType' 'male' 'hoodie' %}">hoodie</a></li>
+                        <li><a href="{% url 'productType' 'male' 'trousers' %}">Trouser</a></li>
+                        <li><a href="{% url 'productType' 'male' 'pants' %}">Pant</a></li>
+                        <li><a href="{% url 'productType' 'male' 'shorts' %}">Short</a></li>
+                      </ul>
+                    </div>
+                  </li>
+                  <li class="category-item" data-category="women">
+                    <a href="{% url 'category' 'female' %}" class="category-link">Women <i class="fas fa-chevron-down"></i></a>
+                    <div class="dropdown-menu">
+                      <ul class="subcategory-list">
+                        <li><a href="{% url 'productType' 'female' 'tshirt' %}">T-Shirt</a></li>
+                        <li><a href="{% url 'productType' 'female' 'shirt' %}">Shirt</a></li>
+                          <li><a href="{% url 'productType' 'female' 'hoodie' %}">hoodie</a></li>
+                        <li><a href="{% url 'productType' 'female' 'trousers' %}">Trouser</a></li>
+                        <li><a href="{% url 'productType' 'female' 'dress' %}">Dress</a></li>
+                        <li><a href="{% url 'productType' 'female' 'top' %}">Top</a></li>
+                        <li><a href="{% url 'productType' 'female' 'pants' %}">Pant</a></li>
+                        <li><a href="{% url 'productType' 'female' 'shorts' %}">Short</a></li>
+                      </ul>
+                    </div>
+                  </li>
+                  <li class="category-item" data-category="women">
+                    <a href="{% url 'category' 'accessories' %}" class="category-link">Accessories <i class="fas fa-chevron-down"></i></a>
+                    <div class="dropdown-menu">
+                      <ul class="subcategory-list">
+                        <li><a href="{% url 'productType' 'accessories' 'bags' %}">Bags</a></li>
+                        <li><a href="{% url 'productType' 'accessories' 'jewellery' %}">Jewellery</a></li>
+                        <li><a href="{% url 'productType' 'accessories' 'cap' %}">Cap</a></li>
+                        <li><a href="{% url 'productType' 'accessories' 'belt' %}">Belt</a></li>
+                        <li><a href="{% url 'productType' 'accessories' 'watch' %}">Watch</a></li>
+                      </ul>
+                    </div>
+                  </li>
                 </ul>
               </nav>
             </div>
@@ -215,6 +262,7 @@
         
               <div class="footer-bottom">
                 <p>&copy; <span id="currentYear"></span> Try&Hauls Store. All rights reserved.</p>
+                <p>Site developed and managed by <a href="https://www.linkedin.com/in/rishit-chawla-5b1088321/" class="link" target="_blank">Rishit Chawla.</a></p>
               </div>
             </div>
           </footer>

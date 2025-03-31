@@ -499,7 +499,7 @@ def newArrivals(request):
         "listings": listings
     })
 
-def limitedTimeDeals(request):
+def limitedDrops(request):
     listings = Listing.objects.filter(limitedTime=True)
     return render(request, "listing.html", {
         "listings": listings
