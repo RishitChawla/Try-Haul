@@ -123,22 +123,21 @@ document.addEventListener("DOMContentLoaded", () => {
         image.style.transform = "scale(1)"
       })
     })
-  
-    // Newsletter form submission
-    const newsletterForm = document.querySelector(".newsletter-form")
-  
-    if (newsletterForm) {
-      newsletterForm.addEventListener("submit", function (e) {
-        e.preventDefault()
-        const emailInput = this.querySelector('input[type="email"]')
-  
-        if (emailInput.value) {
-          // Here you would typically send this to your backend
-          alert("Thank you for subscribing to our newsletter!")
-          emailInput.value = ""
+
+    const searchIcon = document.getElementById("searchIcon");
+    const searchContainer = document.getElementById("searchContainer");
+
+    searchIcon.addEventListener("click", function () {
+        searchContainer.classList.toggle("active");
+    });
+
+    // Close search bar when clicking outside
+    document.addEventListener("click", function (event) {
+        if (!searchContainer.contains(event.target) && event.target !== searchIcon) {
+            searchContainer.classList.remove("active");
         }
-      })
-    }
+    });
+  
   })
   
   

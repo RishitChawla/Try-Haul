@@ -1,16 +1,17 @@
-Page Titles
-search bar adjust
-
-payment
-mail to us, customer and seller
-orders
+Limited Drops
+About us
 upload to aws
 
 
 
+Check for stock at payment
+remove item from cart after order
+celebration after order success
+orders
+payment
+mail to us, customer and seller
 
 
-What if an item is in the cart but gets out of stock - Check for stock at payment
 
 
 
