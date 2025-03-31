@@ -77,8 +77,12 @@ WSGI_APPLICATION = 'tryAndHaul.wsgi.application'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': 'tryandhaulsdb',
+	'USER': 'postgresql',
+	'PASSWORD': 'muhmailele01',
+	'HOST': '127.0.0.1',
+	'PORT': '5432',
     }
 }
 
@@ -122,7 +126,7 @@ import os
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 STATIC_URL = '/static/'
-STATICFILES_DIRS = [os.path.join(BASE_DIR, 'static')]
+STATICFILES_DIRS = [os.path.join(BASE_DIR,'home', 'static')]
 STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 
 
@@ -133,7 +137,7 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 
 MEDIA_URL = '/media/'
-MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+MEDIA_ROOT = '/var/www/TryAndHauls/Try-Haul/media/'
 
 AUTH_USER_MODEL = 'home.User'
 
