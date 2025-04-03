@@ -1,0 +1,22 @@
+{% extends "layout.html" %}
+{% load static %}
+
+{% block body %}
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+
+<form method="POST" action="{% url 'initiatePayment' %}">
+    {% csrf_token %}
+    <input type="number" name="amount" placeholder="Enter Amount" required />
+    <input type="email" name="email" placeholder="Enter Email" required />
+    <input type="text" name="phone" placeholder="Enter Phone Number" required />
+    <button type="submit">Pay Now</button>
+</form>
+
+{% endblock %}
