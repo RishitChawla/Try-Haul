@@ -1,7 +1,7 @@
 import requests
 from django.conf import settings
 
-CASHFREE_BASE_URL = "https://sandbox.cashfree.com/pg/orders" if settings.CASHFREE_ENVIRONMENT == "TEST" else "https://api.cashfree.com/pg/orders"
+CASHFREE_BASE_URL = "https://sandbox.cashfree.com/pg/orders" if settings.CASHFREE_ENV == "TEST" else "https://api.cashfree.com/pg/orders"
 
 def create_cashfree_order(order_id, amount, customer_email, customer_phone):
     headers = {

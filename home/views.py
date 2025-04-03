@@ -7,6 +7,9 @@ from django.contrib.auth.decorators import login_required
 from django.core.exceptions import PermissionDenied
 from django.contrib import messages
 from django.db.models import Q
+from django.views.decorators.csrf import csrf_exempt
+from .utils.cashfree import create_cashfree_order
+import uuid, json
 
 
 
@@ -97,9 +100,9 @@ def orders(request):
     return render(request, "orders.html")
 
 
-@login_required(login_url="/login")
-def editProfile(request):
-    return render(request, "editProfile.html")
+# @login_required(login_url="/login")
+# def editProfile(request):
+#     return render(request, "editProfile.html")
 
 
 @login_required(login_url="/login")
@@ -531,3 +534,39 @@ def returnExchange(request):
 
 def aboutUs(request):
     return render(request, "aboutUs.html")
+
+
+def initiatePayment(request):
+    if request.method == "POST":
+        order_id = str(uuid.uuid4())  # Unique Order ID
+        amount = request.POST.get("amount")
+        email = request.POST.get("email")
+        phone = request.POST.get("phone")
+
+        response = create_cashfree_order(order_id, amount, email, phone)
+
+        if response.get("payment_link"):
+            return redirect(response["payment_link"])
+        else:
+            return JsonResponse({"error": "Failed to create order"}, status=400)
+
+    return render(request, "initiate.html")
+
+def payment_success(request):
+    order_id = request.GET.get("order_id")
+    return render(request, "paymentSuccess.html", {"order_id": order_id})
+
+@csrf_exempt
+def payment_webhook(request):
+    if request.method == "POST":
+        data = json.loads(request.body)
+        order_id = data.get("order_id")
+        status = data.get("order_status")  # PAID, FAILED, etc.
+
+        # Update database order status here
+        print(f"Order {order_id} status: {status}")
+
+        return JsonResponse({"status": "success"})
+    
+def initiate(request):
+    return render(request, "initiate.html")

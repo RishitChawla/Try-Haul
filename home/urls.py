@@ -31,8 +31,15 @@ urlpatterns = [
     path("orders", views.orders, name="orders"),
     
 
-    path("edit", views.editProfile, name="editProfile"),
+    # path("edit", views.editProfile, name="editProfile"),
     
+    path("pay/", views.initiatePayment, name="initiatePayment"),
+    path("payment-success/", views.payment_success, name="payment_success"),
+    path("payment-webhook/", views.payment_webhook, name="payment_webhook"),
+
+    path("initiate/", views.initiate, name="initiate"),
+
+
 
     # Help
     path('terms-of-service', views.terms, name="termsOfServices"),
