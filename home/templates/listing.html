@@ -1,0 +1,83 @@
+{% extends "layout.html" %}
+{% load static %}
+{% block title %} {% endblock %}
+
+{% block body %}
+  <main>
+    <!-- Heading -->
+    <section class="product-listing">
+        <div class="container">
+          <div class="listing-header">
+            <div>
+              <h2 class="listing-title">
+                  {% if query %}
+                    Search Results for "{{ query }}"
+                  {% else %}
+                    {{ category|title }} {% if productType %} > {% endif %} {{ productType|title }}
+                  {% endif %}
+                </h2>
+              <p class="listing-count">{{ listings|length }} product(s)</p>
+            </div>
+  
+
+            <div class="sort-dropdown">
+              <button class="sort-button">
+                Sort By: <span id="currentSort">Newest</span> <i class="fas fa-chevron-down"></i>
+              </button>
+              <div class="sort-options">
+                <div class="sort-option active" data-sort="newest">Newest</div>
+                <div class="sort-option" data-sort="price-low-high">Price: Low to High</div>
+                <div class="sort-option" data-sort="price-high-low">Price: High to Low</div>
+  
+              </div>
+            </div>
+          </div>
+    
+    {% if message %}
+          <h3>{{ message }}</h3>
+    {% else %}
+        <!-- Listings -->
+        <div class="product-grid">
+            {% for list in listings %}
+              <a href="{% url 'item' list.category.slug list.productType.slug list.slug %}" class="product-card"  data-created-at="{{ list.createdAt|date:'Y-m-d H:i:s' }}">
+                <div class="product-image-container">
+                  <img src="{{ list.images.first.image.url }}" alt="Product 1" class="product-image primary">
+                  {% for image in list.images.all %}
+                    {% if forloop.counter == 2 %}
+                        <img src="{{ image.image.url }}" alt="Product 1 Alternate" class="product-image secondary">
+                    {% endif %}
+                  {% endfor %}
+                </div>
+  
+                
+                <div class="product-info">
+                  <div class="product-brand">{{ list.brand }}</div>
+                  <h3 class="product-name">{{ list.name }}</h3>
+                  {% if list.discountedPrice %}
+                    <div class="price-container">
+                        <div class="product-price">₹ {{ list.discountedPrice }}</div> 
+                        <div class="product-discounted-price"><s>₹ {{ list.price }}</s></div>
+                    </div>
+                  {% else %}
+                    <div class="product-price">₹ {{ list.price }}</div>
+                  {% endif %}
+                  
+                </div>
+              </a>
+            {% endfor %}
+          </div>
+    {% endif %}
+               
+
+  </main>
+
+
+
+{% endblock %}
+
+
+{% block script %}
+    {% load static %}
+    <script src="{% static 'listing.js' %}"></script>
+    <script src="{% static 'sort.js' %}"></script>
+{% endblock %}

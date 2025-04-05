@@ -1,0 +1,15 @@
+secure the key in .env
+upload to aws
+remove items from cart and stock if order successful
+change keys and environment
+
+
+Future: Infinite auto Scroll or Pagination
+	check if the stock exists when clicking to pay
+	items not in stock show cross
+	mail to brand customer and vansh
+
+
+
+Next jS
+SEO
