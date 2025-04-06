@@ -37,9 +37,8 @@
               </div>
             {% endfor %}
             <div class="order-footer">
-              <div class="order-total">Total: {{ order.amount }}</div>
-              <div class="order-actions">
-              </div>
+              <div class="order-total">Delivering to: <span style="font-weight: 600; font-size: medium;">{{ order.orderAddress.fullName }}</span> , <span style="font-weight: 500; font-size: small;">{{ order.orderAddress.city }}</span></div>
+              
               {% if order.discount > 0 %}
                 <div class="savings-highlight">
                   <div class="savings-icon" style="font-size: 15px; margin-top: 0px;">
@@ -50,6 +49,9 @@
                   </div>
                 </div>
               {% endif %}
+              <div class="order-actions">
+                Total: {{ order.amount }}
+              </div>
             </div>
           </div>
       {% endfor %}

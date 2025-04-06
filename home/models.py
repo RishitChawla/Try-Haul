@@ -221,6 +221,7 @@ class Order(models.Model):
 
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     order_id = models.CharField(max_length=100, unique=True, default=uuid.uuid4)
+    cashfree_order_id = models.CharField(max_length=100, unique=True, null=True, blank=True) # Cashfree's order ID
     orderAddress = models.ForeignKey(UserAddress, on_delete=models.CASCADE, related_name="orderAddress", null=True, blank=True)
     amount = models.FloatField()
     discount = models.FloatField(default=0.0)

@@ -9,7 +9,7 @@ from django.contrib import messages
 from django.db.models import Q
 from django.views.decorators.csrf import csrf_exempt
 from .utils.cashfree import create_cashfree_order
-import uuid, json
+import uuid, json, traceback
 import os
 
 
@@ -124,9 +124,29 @@ def wishlist(request):
 @login_required(login_url="/login")
 def cart(request):
     listings = Cart.objects.filter(cartUser=request.user)
-    
-    return render(request, "cart.html",{
+    stock_issues = {}  # Dictionary to store items with stock issues
+
+    for item in listings:
+        try:
+            stock = Stock.objects.get(listing=item.cartItem, size=item.cartSize)
+            if stock.quantity < item.cartQuantity:
+                stock_issues[item.id] = {
+                    'item_name': item.cartItem.name,
+                    'size': item.cartSize.size_label,
+                    'available': stock.quantity,
+                    'requested': item.cartQuantity
+                }
+        except Stock.DoesNotExist:
+            stock_issues[item.id] = {
+                'item_name': item.cartItem.name,
+                'size': item.cartSize.size_label,
+                'available': 0,
+                'requested': item.cartQuantity
+            }
+
+    return render(request, "cart.html", {
         "listings": listings,
+        "stock_issues": stock_issues,
     })
 
 def apply_coupon(request):
@@ -154,8 +174,6 @@ def apply_coupon(request):
             return JsonResponse({"success": False, "message": "Invalid or expired coupon code."})
     
     return JsonResponse({"success": False, "message": "Invalid request."})
-
-
 
 
 def storeOrderDetails(request, totalAmount, totalMRP, discount, couponDiscount):
@@ -541,47 +559,55 @@ def payment_webhook(request):
     if request.method == "POST":
         try:
             print("Webhook Hit!")
-            data = json.loads(request.body)
+            print("Raw body:", request.body.decode('utf-8'))
+            data = json.loads(request.body.decode('utf-8'))
             print("Webhook received:", data)
 
             order_data = data.get("data", {}).get("order", {})
             payment_data = data.get("data", {}).get("payment", {})
             order_id = order_data.get("order_id")
             status = payment_data.get("payment_status")  # PAID, FAILED, etc.
+            cashfree_order_id_from_webhook = order_data.get("order_id")
 
-            if not order_id or not status:
+            if not cashfree_order_id_from_webhook or not status:
+                print("Invalid payload: missing order_id or payment_status")
                 return JsonResponse({'error': 'Invalid payload'}, status=400)
 
-            order = Order.objects.get(order_id=order_id)
-            if status == "SUCCESS":
-                order.status = "SUCCESS"
+            try:
+                order = Order.objects.get(order_id=order_id)
+                if status == "SUCCESS":
+                    order.status = "SUCCESS"
 
-                # Get user's cart items
-                user = order.user
-                cart_items = Cart.objects.filter(cartUser=user)
+                    # Get user's cart items
+                    user = order.user
+                    cart_items = Cart.objects.filter(cartUser=user)
 
-                for cart_item in cart_items:
-                    # Reduce quantity from stock
-                    try:
-                        stock = Stock.objects.get(listing=cart_item.cartItem, size=cart_item.cartSize)
-                        stock.quantity -= cart_item.cartQuantity
-                        stock.quantity = max(stock.quantity, 0)  # avoid negative stock
-                        stock.save()
-                    except Stock.DoesNotExist:
-                        pass
+                    for cart_item in cart_items:
+                        # Reduce quantity from stock
+                        try:
+                            stock = Stock.objects.get(listing=cart_item.cartItem, size=cart_item.cartSize)
+                            stock.quantity -= cart_item.cartQuantity
+                            stock.quantity = max(stock.quantity, 0)  # avoid negative stock
+                            stock.save()
+                        except Stock.DoesNotExist:
+                            pass
 
-                # Clear user's cart
-                cart_items.delete()
-            else:
-                order.status = "FAILED"
-            order.save()
+                    # Clear user's cart
+                    cart_items.delete()
+                elif status in ["FAILED", "CANCELLED"]:
+                    order.status = "FAILED"
+                order.save()
+                return JsonResponse({"status": "success"})
 
-            return JsonResponse({"status": "success"})
-        except Order.DoesNotExist:
-            return JsonResponse({'error': 'Order not found'}, status=404)
-
+            except Order.DoesNotExist:
+                print(f"Cashfree Order ID {cashfree_order_id_from_webhook} not found in your system")
+                return JsonResponse({'error': 'Order not found'}, status=404)
+        except json.JSONDecodeError:
+            print("Error decoding webhook JSON")
+            return JsonResponse({'error': 'Invalid JSON'}, status=400)
         except Exception as e:
             print("Error in webhook:", str(e))
+            traceback.print_exc()
             return JsonResponse({'error': str(e)}, status=500)
 
     return JsonResponse({'error': 'Invalid request method'}, status=405)
@@ -598,7 +624,7 @@ def create_order_api(request):
             items = data.get('items', [])
             user = request.user
 
-            generated_order_id = data.get('order_id', 12345) 
+            generated_order_id = data.get('order_id', 'ORD-' + uuid.uuid4().hex[:8].upper()) 
 
             selected_address = get_object_or_404(UserAddress, id=selected_address)
 
@@ -642,6 +668,7 @@ def create_order_api(request):
 
             # Create the order request
             create_order_request = CreateOrderRequest(
+                order_id=generated_order_id,
                 order_amount=order_amount,
                 order_currency="INR",
                 customer_details=customer_details,
@@ -657,12 +684,15 @@ def create_order_api(request):
             if order_entity.order_status == "ACTIVE":
                     return JsonResponse({
                         'payment_session_id': order_entity.payment_session_id,
-                        'order_id': generated_order_id
+                        'order_id': generated_order_id,
+                        'cashfree_order_id': order_entity.order_id
                     }, status=200)
             else:
                 return JsonResponse({'error': 'Order creation failed.'}, status=400)
 
         except Exception as e:
+            print("Error in create_order_api: ", str(e))
+            traceback.print_exc()
             return JsonResponse({'error': str(e)}, status=500)
 
     return JsonResponse({'error': 'Invalid request method'}, status=405)
