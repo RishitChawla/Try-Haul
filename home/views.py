@@ -9,8 +9,7 @@ from django.contrib import messages
 from django.db.models import Q
 from django.views.decorators.csrf import csrf_exempt
 from .utils.cashfree import create_cashfree_order
-import uuid, json, traceback
-import os
+import uuid, json, traceback, os
 
 
 from cashfree_pg.models.create_order_request import CreateOrderRequest
@@ -104,7 +103,7 @@ def logout_view(request):
 
 @login_required(login_url="/login")
 def orders(request):
-    userOrders = Order.objects.filter(user=request.user)
+    userOrders = Order.objects.filter(user=request.user).order_by('-created_at')
     return render(request, "orders.html", {
         "orders": userOrders,
     })

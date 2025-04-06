@@ -2,7 +2,12 @@ function generateRandomOrderID() {
     return 'ORD-' + Math.random().toString(36).substr(2, 9).toUpperCase();
 }
 
+let isSubmittingOrder = false;
+
 function submitOrder() {
+    if (isSubmittingOrder) return; // Prevent double submission
+    isSubmittingOrder = true;
+
     console.log("Submit Order Clicked");
     
 
@@ -24,7 +29,7 @@ function submitOrder() {
 
     const orderAmount = parseFloat(document.getElementById('totalAmount').value);
     if (orderAmount <= 0) {
-        alert("Amount can not be less then or equals to 0")
+        alert("Amount can not be less then or equals to 0.")
     }
 
     const discount = parseFloat(document.getElementById('discount').value || 0);
