@@ -14,6 +14,9 @@
         
         <link rel="shortcut icon" href="{% static 'images/favicon.ico' %}">
 
+        <link rel="stylesheet" href="https://cashfree.com/assets/element/cf-element.css">
+        
+
         {% block style %}{% endblock %}
         {% block script %}
             
@@ -271,10 +274,5 @@
     <script src="{% static 'script.js' %}"></script>
 
 
-    <script src="https://sdk.cashfree.com/js/v3/cashfree.js"></script>
-    <script>
-      const cashfree = Cashfree({
-        mode: "sandbox", //or production
-      });
-    </script>
+    
 </html>

@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>🥰 Successful Order - Order #{{ order.order_id }}</title>
+</head>
+<body>
+    <h1>Successful Order - Order #{{ order.order_id }}</h1>
+
+    <h2>Order Details:</h2>
+    <ul>
+        {% for item in ordered_items %}
+            <li>
+                <strong>Product:</strong> {{ item.productBrand }} - {{ item.productName }}
+                {% if item.size %}(Size: {{ item.size }}){% endif %}
+                {% if item.color %}(Color: {{ item.color }}){% endif %}
+                <strong>Quantity:</strong> {{ item.quantity }}
+            </li>
+        {% empty %}
+            <li>No items in this order.</li>
+        {% endfor %}
+    </ul>
+
+    <h2>Address Details:</h2>
+    
+    <p>Delivery To: {{ order.orderAddress.fullName }}</p>
+    <p>Delivery Address:</p>
+    <pre>{{ order.orderAddress.address }}<br>{{ order.orderAddress.city }}, {{ order.orderAddress.state }} - {{ order.orderAddress.pincode }}<br>Phone: +91 {{ order.orderAddress.phone }}</pre>
+
+    <h2>Payment Information:</h2>
+    <p>Total Order Amount: ₹{{ order.amount }}</p>
+    {% if order.discount %}
+    <p>Discount: ₹{{ order.discount }}</p>
+    {% endif %}
+</body>
+</html>

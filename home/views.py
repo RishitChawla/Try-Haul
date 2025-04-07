@@ -8,8 +8,12 @@ from django.core.exceptions import PermissionDenied
 from django.contrib import messages
 from django.db.models import Q
 from django.views.decorators.csrf import csrf_exempt
-from .utils.cashfree import create_cashfree_order
-import uuid, json, traceback, os
+from django.conf import settings
+import uuid, json, traceback, os, hmac, hashlib, base64
+from django.core.mail import send_mail
+from django.template.loader import render_to_string
+
+
 
 
 from cashfree_pg.models.create_order_request import CreateOrderRequest
@@ -19,7 +23,7 @@ from cashfree_pg.models.order_meta import OrderMeta
 
 Cashfree.XClientId = os.environ.get("CASHFREE_CLIENT_ID")
 Cashfree.XClientSecret = os.environ.get("CASHFREE_CLIENT_SECRET")
-Cashfree.XEnvironment = Cashfree.SANDBOX
+Cashfree.XEnvironment = Cashfree.PRODUCTION
 x_api_version = "2023-08-01"
 
 
@@ -552,10 +556,24 @@ def payment_success(request):
     latest_order = Order.objects.filter(user=request.user).latest('created_at')
     return render(request, 'paymentSuccess.html', {'order': latest_order})
 
+def verify_signature(request):
+    received_signature = request.headers.get('x-webhook-signature')
+    secret = os.environ.get("CASHFREE_CLIENT_SECRET", "").encode()  # Load from env
+    raw_body = request.body
+
+    calculated_signature = base64.b64encode(
+        hmac.new(secret, raw_body, hashlib.sha256).digest()
+    ).decode()
+
+    return hmac.compare_digest(received_signature, calculated_signature)
 
 @csrf_exempt
 def payment_webhook(request):
     if request.method == "POST":
+        if not verify_signature(request):
+            print("Invalid webhook signature")
+            return JsonResponse({"error": "Invalid signature"}, status=403)
+        
         try:
             print("Webhook Hit!")
             print("Raw body:", request.body.decode('utf-8'))
@@ -574,12 +592,31 @@ def payment_webhook(request):
 
             try:
                 order = Order.objects.get(order_id=order_id)
+                ordered_items = order.items
+                order_address = order.orderAddress
+
                 if status == "SUCCESS":
                     order.status = "SUCCESS"
+
 
                     # Get user's cart items
                     user = order.user
                     cart_items = Cart.objects.filter(cartUser=user)
+                    
+
+                    # --- Email Notification to Admin ---
+                    admin_email = settings.DEFAULT_FROM_EMAIL  # Or your specific admin email
+                    subject = f"SUCCESSFUL ORDER - Order #{order.order_id}"
+                    context = {
+                        'order': order,
+                        'payment_data': payment_data,
+                        'ordered_items': ordered_items,
+                        'order_address': order_address,
+                        'CASHFREE_CLIENT_ID': os.environ.get("CASHFREE_CLIENT_ID")
+                    }
+                    message = render_to_string('emails/admin_order_details.html', context)
+                    send_mail(subject, message, settings.DEFAULT_FROM_EMAIL, [admin_email], html_message=message)
+                    print(f"Admin notification email sent for Order #{order.order_id}")
 
                     for cart_item in cart_items:
                         # Reduce quantity from stock
@@ -653,7 +690,7 @@ def create_order_api(request):
                 status='PENDING'
             )
 
-
+            domain = "https://2459-103-164-204-137.ngrok-free.app"
             # Set customer and order details
             customer_details = CustomerDetails(
                 customer_id=customer_id,
@@ -661,7 +698,7 @@ def create_order_api(request):
                 customer_email= user.email
                 )
             order_meta = OrderMeta(
-                return_url=request.build_absolute_uri(reverse('payment_success')), 
+                return_url=request.build_absolute_uri(reverse('payment_success')),
                 notify_url=request.build_absolute_uri(reverse('payment_webhook'))
             )
 

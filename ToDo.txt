@@ -1,10 +1,11 @@
-security risks?, ask to review the code
-mail to brand customer and vansh
-what else to do before deploying?
 change keys and environment
-
 remove print commands from views.py
+remove console.log
 
+request.build_absolute_uri(reverse('payment_webhook'))
+
+deploy
+image when being shared
 
 
 Future: Infinite auto Scroll or Pagination
