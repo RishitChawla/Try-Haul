@@ -91,6 +91,8 @@
                     </button>
                 </form>                
                 </div>
+            {% else %}
+                <a href="{% url 'login' %}" class="btn primary-btn">Sign in to Procced</a>
             {% endif %}
             
             {% if listing.productDetails %}
