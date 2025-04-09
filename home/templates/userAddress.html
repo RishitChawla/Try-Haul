@@ -2,10 +2,6 @@
 {% load static %}
 
 {% block script %}
-  <script src="https://sdk.cashfree.com/js/v3/cashfree.js"></script>
-
-
-  <script src="{% static 'purchase.js' %}"></script>
   <script src="{% static 'userAddress.js' %}"></script>
 {% endblock %}
 
@@ -175,20 +171,17 @@
             {% if addresses %}
               <!-- Loader -->
               <div id="loader" style="display: none;">Processing...</div>
+             
+              <form id="paymentForm" method="post" action="{% url 'process_order' %}">
+                {% csrf_token %}
+                <input type="hidden" name="amount" value="{{ order_details.totalAmount }}">
+                <input type="hidden" name="cartItems" value='{{ cartItems|safe }}'>
+                <input type="hidden" name="discount" value="{{ order_details.discount }}">
+                <input type="hidden" name="couponDiscount" value="{{ order_details.couponDiscount }}">
+                <input type="hidden" name="selectedAddress" id="selectedAddress">
+                <button type="submit" name="continueToPaymentBtn" id="continue-to-payment" class="btn primary-btn place-order-btn">Continue to Payment</button>
+              </form>
 
-              <input type="hidden" id="createOrderApiUrl" value="{% url 'create_order_api' %}">
-
-              <input type="hidden" id="cartItems" value='{{ order_details.cartItems|safe }}'> <!-- Must be a JSON string -->
-              <input type="hidden" id="discount" value="{{ order_details.discount }}">
-              <input type="hidden" id="couponDiscount" value="{{ order_details.couponDiscount }}">
-              
-              <input type="hidden" id="customerID" value="ID-{{ request.user.id }}">
-              <input type="hidden" name="amount" id="totalAmount" value="{{ order_details.totalAmount }}">
-              <input type="hidden" id="selectedAddress" name="selectedAddress" value="">
-              <form id="paymentForm">{% csrf_token %}</form>
-
-
-              <button type="button" onclick="submitOrder()" name="continueToPaymentBtn" id="continue-to-payment" class="btn primary-btn place-order-btn">Continue to Payment</button>
 
             {% endif %} 
           </div>

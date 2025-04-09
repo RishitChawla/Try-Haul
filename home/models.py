@@ -213,21 +213,26 @@ class Coupon(models.Model):
     
 
 class Order(models.Model):
-    PAYMENT_STATUS_CHOICES = [
-        ('PENDING', 'Pending'),
-        ('FAILED', 'Failed'),
-        ('SUCCESS', 'Success'),
-    ]
-
     user = models.ForeignKey(User, on_delete=models.CASCADE)
-    order_id = models.CharField(max_length=100, unique=True, default=uuid.uuid4)
-    cashfree_order_id = models.CharField(max_length=100, unique=True, null=True, blank=True) # Cashfree's order ID
-    orderAddress = models.ForeignKey(UserAddress, on_delete=models.CASCADE, related_name="orderAddress", null=True, blank=True)
-    amount = models.FloatField()
-    discount = models.FloatField(default=0.0)
-    items = models.JSONField(default=list) 
-    status = models.CharField(max_length=10, choices=PAYMENT_STATUS_CHOICES, default='PENDING')
+    order_id = models.CharField(max_length=100, null=True, blank=True) # Razorpay order ID
+    total_amount = models.DecimalField(max_digits=10, decimal_places=2)
+    discount = models.DecimalField(default=0.00, max_digits=10, decimal_places=2)
+    address = models.ForeignKey(UserAddress, on_delete=models.SET_NULL, null=True)
+    items = models.JSONField(blank=True, null=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+
+    def __str__(self):
+        return f"Order #{self.id} by {self.user.username}"
+
+class Payment(models.Model):
+    order = models.OneToOneField(Order, on_delete=models.CASCADE)
+    payment_id = models.CharField(max_length=100, null=True, blank=True) # Razorpay payment ID
+    signature = models.CharField(max_length=256, null=True, blank=True) # Razorpay signature
+    amount = models.DecimalField(max_digits=10, decimal_places=2)
+    currency = models.CharField(max_length=3, default='INR')
+    payment_status = models.CharField(max_length=20, default='PENDING') # e.g., PENDING, SUCCESS, FAILED
     created_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
-        return f"{self.order_id} - {self.user.username} - {self.status}"
+        return f"Payment for Order #{self.order.id} - {self.payment_status}"

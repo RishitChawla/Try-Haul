@@ -3,6 +3,7 @@ from . import views
 
 urlpatterns = [
     path("", views.index, name="index"),
+    path('initiate/<int:order_id>/', views.initiate_payment, name='initiate_payment'),
 
     # Listings
     path('all-products', views.allProducts, name="allProducts"),    
@@ -28,9 +29,10 @@ urlpatterns = [
     path("orders", views.orders, name="orders"),
     
 
-    path("payment-success/", views.payment_success, name="payment_success"),
-    path("payment-webhook/", views.payment_webhook, name="payment_webhook"),
-    path("create_order_api/", views.create_order_api, name="create_order_api"),
+
+    path('process-order/', views.process_order, name='process_order'),
+    path('payment/success/', views.payment_success, name='payment_success'),
+    path('payment/failed/', views.payment_failed, name='payment_failed'),
 
 
 

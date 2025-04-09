@@ -12,24 +12,18 @@ from django.conf import settings
 import uuid, json, traceback, os, hmac, hashlib, base64
 from django.core.mail import send_mail
 from django.template.loader import render_to_string
+import razorpay
+from decimal import Decimal
+import string, random
 
 
 
 
-from cashfree_pg.models.create_order_request import CreateOrderRequest
-from cashfree_pg.api_client import Cashfree
-from cashfree_pg.models.customer_details import CustomerDetails
-from cashfree_pg.models.order_meta import OrderMeta
-
-Cashfree.XClientId = os.environ.get("CASHFREE_CLIENT_ID")
-Cashfree.XClientSecret = os.environ.get("CASHFREE_CLIENT_SECRET")
-Cashfree.XEnvironment = Cashfree.PRODUCTION
-x_api_version = "2023-08-01"
 
 
 
 
-from .models import Listing, Category, ProductType, Listing, Brand, User, Cart, Wishlist, Size, Stock, UserAddress, Coupon, SizeGuide, Order, Image
+from .models import Listing, Category, ProductType, Listing, Brand, User, Cart, Wishlist, Size, Stock, UserAddress, Coupon, SizeGuide, Order, Image, Payment, Color
 
 
 # Create your views here.
@@ -108,8 +102,43 @@ def logout_view(request):
 @login_required(login_url="/login")
 def orders(request):
     userOrders = Order.objects.filter(user=request.user).order_by('-created_at')
+
+    enriched_orders = []
+    for order in userOrders:
+        enriched_items = []
+        for item in order.items or []:
+            try:
+                listing = Listing.objects.get(id=item['cartItem_id'])
+                size = Size.objects.get(id=item['cartSize_id'])
+                image_obj = listing.images.first()
+
+                enriched_items.append({
+                    "productName": listing.name,
+                    "size": size.size_label,
+                    "quantity": item['cartQuantity'],
+                    "image": image_obj.image.url if image_obj else None
+                })
+            except Exception as e:
+                print(f"Error enriching item: {e}")
+                continue
+
+        try:
+            payment_status = order.payment.payment_status
+        except Payment.DoesNotExist:
+            payment_status = "PENDING"
+
+        enriched_orders.append({
+            "order_id": order.order_id,
+            "created_at": order.created_at,
+            "status": payment_status,
+            "amount": order.total_amount,
+            "discount": order.discount,
+            "orderAddress": order.address,
+            "items": enriched_items,
+        })
+
     return render(request, "orders.html", {
-        "orders": userOrders,
+        "orders": enriched_orders,
     })
 
 
@@ -274,12 +303,19 @@ def address(request):
     if 'order_details' not in request.session:
         return HttpResponseForbidden("Access Denied. Please proceed through the checkout.")
 
+    cartItems = Cart.objects.filter(cartUser=request.user)
+    # Convert queryset to a list of dictionaries
+    cart_items_data = list(cartItems.values())  
+    cart_items_json = json.dumps(cart_items_data)
+
 
     order_details = request.session.get('order_details')  # Remove after use
     addresses = UserAddress.objects.filter(user=request.user)
     return render(request, 'userAddress.html', {
         "order_details":order_details,
-        "addresses": addresses
+        "addresses": addresses,
+        "cart_items_data": cart_items_data,
+        "cartItems": cart_items_json
     })
 
 
@@ -301,7 +337,11 @@ def category(request, category_slug):
 def productType(request, category_slug, productType_slug):
     category = get_object_or_404(Category, slug=category_slug)
     productType = get_object_or_404(ProductType, slug=productType_slug)
-    listings = Listing.objects.filter(category=category, productType=productType)
+    
+    if category_slug in ["male", "female"]:
+        listings = Listing.objects.filter(category__slug__in=[category_slug, "unisex"], productType=productType)
+    elif category_slug == "unisex":
+        listings = Listing.objects.filter(category__slug__in=["male", "female", "unisex"], productType=productType)
 
     return render(request, "listing.html", {
         "listings": listings,
@@ -552,183 +592,200 @@ def aboutUs(request):
     return render(request, "aboutUs.html")
 
 @login_required
+def process_order(request):
+    if request.method == "POST":
+        user = request.user
+        amount = request.POST.get("amount")
+        discount = request.POST.get("discount")
+        coupon_discount = request.POST.get("couponDiscount")
+        address_id  = request.POST.get("selectedAddress")
+
+        address = get_object_or_404(UserAddress, id=address_id, user=user)
+        total_discount = float(discount or 0) + float(coupon_discount or 0)
+        cart_items_raw = request.POST.get("cartItems")
+        cart_items_data = json.loads(cart_items_raw) if cart_items_raw else []
+
+        # Create Order
+        order = Order.objects.create(
+            user=user,
+            total_amount=amount,
+            discount=total_discount,
+            address=address,
+            items=cart_items_data,
+        )
+        order.save()
+
+        # Save order ID in session if needed, or redirect directly to payment
+        return redirect('initiate_payment', order_id=order.id)
+
+@login_required
+def initiate_payment(request, order_id):
+    
+
+    order = get_object_or_404(Order, id=order_id)
+    amount = order.total_amount # Amount in paise
+
+    # Save cart items to order if not already saved
+    if not order.items:
+        user_cart_items = Cart.objects.filter(cartUser=request.user)
+        cart_data = list(user_cart_items.values())
+        order.items = cart_data
+        order.save()
+
+
+    # Initialize Razorpay client based on the environment
+    if settings.DEBUG:
+        client = razorpay.Client(auth=(settings.RAZORPAY_KEY_ID_TEST, settings.RAZORPAY_KEY_SECRET_TEST))
+    else:
+        client = razorpay.Client(auth=(settings.RAZORPAY_KEY_ID_LIVE, settings.RAZORPAY_KEY_SECRET_LIVE))
+
+    # Create a Razorpay order
+    razorpay_order = client.order.create(dict(amount=int(order.total_amount * 100), currency='INR', receipt=f'order_{order.id}'))
+    order.order_id = razorpay_order['id']
+    order.save()
+
+    context = {
+        'order': order,
+        'razorpay_key_id': settings.RAZORPAY_KEY_ID_TEST if settings.DEBUG else settings.RAZORPAY_KEY_ID_LIVE,
+    }
+    return render(request, 'payment.html', context)
+
+@csrf_exempt
 def payment_success(request):
-    latest_order = Order.objects.filter(user=request.user).latest('created_at')
-    return render(request, 'paymentSuccess.html', {'order': latest_order})
+    if request.method == 'POST':
+        payment_id = request.POST.get('razorpay_payment_id')
+        order_id = request.POST.get('razorpay_order_id')
+        signature = request.POST.get('razorpay_signature')
+        order = Order.objects.get(order_id=order_id)
 
-def verify_signature(request):
-    received_signature = request.headers.get('x-webhook-signature')
-    secret = os.environ.get("CASHFREE_CLIENT_SECRET", "").encode()  # Load from env
-    raw_body = request.body
+        if Payment.objects.filter(order=order).exists():
+            return render(request, 'paymentSuccess.html', {'payment': Payment.objects.get(order=order)})
 
-    calculated_signature = base64.b64encode(
-        hmac.new(secret, raw_body, hashlib.sha256).digest()
-    ).decode()
+        # Initialize Razorpay client
+        if settings.DEBUG:
+            client = razorpay.Client(auth=(settings.RAZORPAY_KEY_ID_TEST, settings.RAZORPAY_KEY_SECRET_TEST))
+        else:
+            client = razorpay.Client(auth=(settings.RAZORPAY_KEY_ID_LIVE, settings.RAZORPAY_KEY_SECRET_LIVE))
 
-    return hmac.compare_digest(received_signature, calculated_signature)
+        if Payment.objects.filter(order=order).exists():
+            return JsonResponse({'status': 'already_exists'})
 
-@csrf_exempt
-def payment_webhook(request):
-    if request.method == "POST":
-        if not verify_signature(request):
-            print("Invalid webhook signature")
-            return JsonResponse({"error": "Invalid signature"}, status=403)
-        
         try:
-            print("Webhook Hit!")
-            print("Raw body:", request.body.decode('utf-8'))
-            data = json.loads(request.body.decode('utf-8'))
-            print("Webhook received:", data)
-
-            order_data = data.get("data", {}).get("order", {})
-            payment_data = data.get("data", {}).get("payment", {})
-            order_id = order_data.get("order_id")
-            status = payment_data.get("payment_status")  # PAID, FAILED, etc.
-            cashfree_order_id_from_webhook = order_data.get("order_id")
-
-            if not cashfree_order_id_from_webhook or not status:
-                print("Invalid payload: missing order_id or payment_status")
-                return JsonResponse({'error': 'Invalid payload'}, status=400)
-
-            try:
-                order = Order.objects.get(order_id=order_id)
-                ordered_items = order.items
-                order_address = order.orderAddress
-
-                if status == "SUCCESS":
-                    order.status = "SUCCESS"
+            # Verify payment signature
+            client.utility.verify_payment_signature({
+                'razorpay_order_id': order_id,
+                'razorpay_payment_id': payment_id,
+                'razorpay_signature': signature
+            })
 
 
-                    # Get user's cart items
-                    user = order.user
-                    cart_items = Cart.objects.filter(cartUser=user)
-                    
+            # Payment Success Mail
+            enriched_items = []
+            for item in order.items:
+                try:
+                    listing = Listing.objects.get(id=item["cartItem_id"])
+                    size = Size.objects.get(id=item["cartSize_id"])
+                    quantity = item["cartQuantity"]
 
-                    # --- Email Notification to Admin ---
-                    admin_email = settings.DEFAULT_FROM_EMAIL  # Or your specific admin email
-                    subject = f"SUCCESSFUL ORDER - Order #{order.order_id}"
-                    context = {
-                        'order': order,
-                        'payment_data': payment_data,
-                        'ordered_items': ordered_items,
-                        'order_address': order_address,
-                        'CASHFREE_CLIENT_ID': os.environ.get("CASHFREE_CLIENT_ID")
-                    }
-                    message = render_to_string('emails/admin_order_details.html', context)
-                    send_mail(subject, message, settings.DEFAULT_FROM_EMAIL, [admin_email], html_message=message)
-                    print(f"Admin notification email sent for Order #{order.order_id}")
+                    enriched_items.append({
+                        'listing': listing,
+                        "brand": listing.brand.name,
+                        "name": listing.name,
+                        "color": listing.colors.first().name,
+                        "size": size.size_label,
+                        "quantity": quantity
+                    })
+                except Exception as e:
+                    print("Error enriching item for email:", e)
+                    continue
 
-                    for cart_item in cart_items:
-                        # Reduce quantity from stock
-                        try:
-                            stock = Stock.objects.get(listing=cart_item.cartItem, size=cart_item.cartSize)
-                            stock.quantity -= cart_item.cartQuantity
-                            stock.quantity = max(stock.quantity, 0)  # avoid negative stock
-                            stock.save()
-                        except Stock.DoesNotExist:
-                            pass
+            admin_email = settings.DEFAULT_FROM_EMAIL
+            subject = f"New Order Placed - Order #{order.order_id}"
+            context = {
+                'order': order,
+                'user': request.user,
+                'payment': {
+                    'id': payment_id,
+                    'amount': order.total_amount,
+                    'date': order.created_at,
+                },
+                'items': enriched_items,
+                'order_address': order.address
+            }
+            print("🥰enriched_items", enriched_items)
+            message = render_to_string('emails/admin_order_details.html', context)
+            send_mail(subject, message, settings.DEFAULT_FROM_EMAIL, [admin_email], html_message=message)
+            print(f"Admin notification email sent for Order #{order.order_id}")
 
-                    # Clear user's cart
-                    cart_items.delete()
-                elif status in ["FAILED", "CANCELLED"]:
-                    order.status = "FAILED"
-                order.save()
-                return JsonResponse({"status": "success"})
+            payment = Payment.objects.create(
+                order=order,
+                payment_id=payment_id,
+                signature=signature,
+                amount=order.total_amount,
+                payment_status='SUCCESS'
+            )
+            print("Order Items:", order.items)
 
-            except Order.DoesNotExist:
-                print(f"Cashfree Order ID {cashfree_order_id_from_webhook} not found in your system")
-                return JsonResponse({'error': 'Order not found'}, status=404)
-        except json.JSONDecodeError:
-            print("Error decoding webhook JSON")
-            return JsonResponse({'error': 'Invalid JSON'}, status=400)
+            # Reduce stock
+            for cart_item in order.items:
+                print("Cart item:", cart_item)
+                listing_id = cart_item.get("cartItem_id")
+                size_id = cart_item.get("cartSize_id")
+                quantity = cart_item.get("cartQuantity", 1)
+
+                try:
+                    print("Trying to fetch stock for listing ID:", listing_id, "and size ID:", size_id)
+                    stock_obj = Stock.objects.get(listing_id=listing_id, size_id=size_id)
+                    if stock_obj.quantity >= quantity:
+                        stock_obj.quantity -= quantity
+                    else:
+                        stock_obj.quantity = 0
+                    stock_obj.save()
+                except Stock.DoesNotExist:
+                    # Optional: Log this or handle it more gracefully
+                    continue
+
+            enriched_items = []
+            # getting the items details to pass into success page
+            for item in order.items:
+                try:
+                    size = Size.objects.get(id=item['cartSize_id'])
+                    listing = Listing.objects.get(id=item['cartItem_id'])
+                    image = listing.images.first()
+                    enriched_items.append({
+                        'listing': listing,
+                        'size': size,
+                        'quantity': item['cartQuantity'],
+                        'image': image.image.url if image else None
+                    })
+                except Exception as e:
+                    print("Error enriching item:", e)
+                    continue
+
+            # Clear cart
+            Cart.objects.filter(cartUser=request.user).delete()
+
+            return render(request, 'paymentSuccess.html', {
+                'payment': payment,
+                'items': enriched_items
+                })
+
         except Exception as e:
-            print("Error in webhook:", str(e))
-            traceback.print_exc()
-            return JsonResponse({'error': str(e)}, status=500)
-
-    return JsonResponse({'error': 'Invalid request method'}, status=405)
-
-@csrf_exempt
-def create_order_api(request):
-    if request.method == "POST":
-        try:
-            data = json.loads(request.body)
-            customer_id = data['customer_details']['customer_id']
-            order_amount = float(data['order_amount'])
-            selected_address = data.get('selected_address', '')
-            discount = data.get('discount', 0.0)
-            items = data.get('items', [])
-            user = request.user
-
-            generated_order_id = data.get('order_id', 'ORD-' + uuid.uuid4().hex[:8].upper()) 
-
-            selected_address = get_object_or_404(UserAddress, id=selected_address)
-
-            cart_items = Cart.objects.filter(cartUser=user)
-            
-            items = []
-            for cart_item in cart_items:
-                image = Image.objects.filter(listing=cart_item.cartItem).first()
-                item_data = {
-                    'product_id': cart_item.id,
-                    'productName': cart_item.cartItem.name,
-                    'productBrand': cart_item.cartItem.brand.name,
-                    'quantity': cart_item.cartQuantity,
-                    'size': cart_item.cartSize.size_label,
-                    'image': image.image.url if image else ''
+            # Prevent duplicate failed payments
+            payment, created = Payment.objects.get_or_create(
+                order=order,
+                defaults={
+                    'payment_id': payment_id,
+                    'signature': signature,
+                    'amount': order.total_amount,
+                    'payment_status': 'FAILED'
                 }
-                items.append(item_data)
-
-
-            order = Order.objects.create(
-                user=user,
-                order_id=generated_order_id,
-                orderAddress=selected_address,
-                amount=order_amount,
-                discount=discount,
-                items=items,
-                status='PENDING'
             )
+            return render(request, 'paymentFailed.html', {'error': str(e), 'payment': payment})
 
-            domain = "https://2459-103-164-204-137.ngrok-free.app"
-            # Set customer and order details
-            customer_details = CustomerDetails(
-                customer_id=customer_id,
-                customer_phone= selected_address.phone,
-                customer_email= user.email
-                )
-            order_meta = OrderMeta(
-                return_url=request.build_absolute_uri(reverse('payment_success')),
-                notify_url=request.build_absolute_uri(reverse('payment_webhook'))
-            )
+    return redirect('payment_failed')
 
-            # Create the order request
-            create_order_request = CreateOrderRequest(
-                order_id=generated_order_id,
-                order_amount=order_amount,
-                order_currency="INR",
-                customer_details=customer_details,
-                order_meta=order_meta
-            )
+@login_required
+def payment_failed(request):
+    return render(request, 'paymentFailed.html')
 
-            # Call Cashfree to create the order
-            response = Cashfree().PGCreateOrder(x_api_version, create_order_request, None, None)
-            print("Cashfree API Response:", response.data)
-
-            # Process the response and return the session ID
-            order_entity = response.data
-            if order_entity.order_status == "ACTIVE":
-                    return JsonResponse({
-                        'payment_session_id': order_entity.payment_session_id,
-                        'order_id': generated_order_id,
-                        'cashfree_order_id': order_entity.order_id
-                    }, status=200)
-            else:
-                return JsonResponse({'error': 'Order creation failed.'}, status=400)
-
-        except Exception as e:
-            print("Error in create_order_api: ", str(e))
-            traceback.print_exc()
-            return JsonResponse({'error': str(e)}, status=500)
-
-    return JsonResponse({'error': 'Invalid request method'}, status=405)

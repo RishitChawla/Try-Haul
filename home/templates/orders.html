@@ -28,7 +28,11 @@
             {% for item in order.items %}
               <div class="order-items">
                 <div class="order-item">
-                  <img src="{{ item.image }}" alt="Product" class="order-item-image">
+                  {% if item.image %}
+                    <img src="{{ item.image }}" alt="Product" class="order-item-image">
+                  {% else %}
+                    <div class="no-image">No image available</div>
+                  {% endif %}
                   <div class="order-item-details">
                     <div class="order-item-name">{{ item.productName }}</div>
                     <div class="order-item-size">Size: {{ item.size }} | Qty: {{ item.quantity }}</div>

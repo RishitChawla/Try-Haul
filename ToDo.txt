@@ -1,11 +1,18 @@
-change keys and environment
+make changing selected work better
+
+enable production mode
+
 remove print commands from views.py
 remove console.log
 
-request.build_absolute_uri(reverse('payment_webhook'))
 
 deploy
 image when being shared
+
+
+
+
+
 
 
 Future: Infinite auto Scroll or Pagination
@@ -20,7 +27,7 @@ mongo db
 
 
 
-
+MAIL:
 
 
 

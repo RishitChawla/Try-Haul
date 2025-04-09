@@ -141,8 +141,15 @@ AUTH_USER_MODEL = 'home.User'
 
 import os
 from dotenv import load_dotenv
-
 load_dotenv()
+
+from decouple import config
+
+RAZORPAY_KEY_ID_TEST = config('RAZORPAY_KEY_ID_TEST', default='')
+RAZORPAY_KEY_SECRET_TEST = config('RAZORPAY_KEY_SECRET_TEST', default='')
+
+RAZORPAY_KEY_ID_LIVE = config('RAZORPAY_KEY_ID_LIVE', default='')
+RAZORPAY_KEY_SECRET_LIVE = config('RAZORPAY_KEY_SECRET_LIVE', default='')
 
 
 

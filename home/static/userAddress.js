@@ -40,20 +40,21 @@ document.addEventListener('DOMContentLoaded', function() {
         this.textContent = addressForm.classList.contains('ishidden') ? 'Add New Address' : 'Cancel';
       });
     }
+  
+    continueToPaymentBtn.addEventListener('click', function () {
+      const selectedRadio = document.querySelector('.address-radio:checked');
+  
+      if (!selectedRadio) {
+          alert("Please select a delivery address.");
+          return;
+      }
+  
+      // Set the selected address ID in the hidden input
+      selectedAddressInput.value = selectedRadio.id;
+  
+      console.log("Selected Address ID set to:", selectedRadio.id);
 
-    window.onload = function () {
-        const orderButton = document.getElementById("continue-to-payment");
-        if (orderButton) {
-            orderButton.addEventListener("click", function() {
-                if (typeof submitOrder === "function") {
-                    submitOrder();
-                } else {
-                    console.error("submitOrder function is not defined!");
-                }
-            });
-        } else {
-            console.error("Order button not found!");
-        }
-    };
+    });
+    
 
   });
